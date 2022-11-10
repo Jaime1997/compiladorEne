@@ -1,8 +1,22 @@
 program simple;
 
+func int sub(int x, int y){
+    int result;
+    result = x - y;
+    return result;
+}
+
+func int add(int x, int y){
+    int result;
+    result = x + y;
+    return result;
+}
+
 main(){
-    int a, b, c;
+    int a, b, c, d, e;
     a = 5;
     b = 4;
     c = 2*(a+b)+2;
+    d = add(a,b);
+    e = sub(c,d);
 }

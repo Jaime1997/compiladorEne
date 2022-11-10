@@ -9,6 +9,8 @@ class FunctionDirectory(object):
         self.constTable = [dict(), dict(), dict(), dict()]
         # Int, float, bool
         self.tempTable = [dict(), dict(), dict()]
+        # Parameter table
+        #self.parameterTable = dict()
         # Name of currently running program
         self.programName = ""
         # Global or local scope
@@ -19,7 +21,8 @@ class FunctionDirectory(object):
         self.newScope = ""
         # Type of value being parsed.
         self.currentType = ""
-        self.paramC = 0
+        # Helps check argument/parameter number agreement
+        self.argC = 0
         self.auxArrId = ""
 
     def addProgram(self, id):
@@ -70,6 +73,92 @@ class FunctionDirectory(object):
         else:
             self.directory[self.currentScope][1][id] = [self.currentType, "value", adr, []]
             # Type, value, address, dimensions
+
+    def addFunction(self, id):
+        # If already declared, error
+        if id in self.directory:
+            print("Error: function already declared")
+        # If not declared, add to directory
+        else:
+            self.directory[id] = [[self.currentScopeReturn], dict()]
+            self.parameterTable[self.currentScope] = []
+
+    def functionExists(self, id):
+        if id in self.directory:
+            return True
+        else:
+            return False
+
+    def countLocalVar(self):
+        int = 0
+        float = 0
+        char = 0
+        string = 0
+        dataframe = 0
+        for i in self.directory[self.currentScope][1]:
+            if self.directory[self.currentScope][1][i][0] == 'int':
+                int += 1
+            elif self.directory[self.currentScope][1][i][0] == 'float':
+                float += 1
+            elif self.directory[self.currentScope][1][i][0] == 'char':
+                char += 1
+            elif self.directory[self.currentScope][1][i][0] == 'string':
+                string += 1
+            elif self.directory[self.currentScope][1][i][0] == 'dataframe':
+                dataframe += 1
+
+        if len(self.directory[self.currentScope][0]) > 3:
+            print('error: el indice del arreglo esta mal')
+        else:
+            self.directory[self.currentScope][0].append([int, float, char, string, dataframe])
+
+    def setQuadCounter(self, count):
+        if len(self.directory[self.currentScope][0]) > 3:
+            self.directory[self.currentScope][0][3] = count
+        else:
+            self.directory[self.currentScope][0].append(count)
+
+    def getFunctionStartNumber(self):
+        return self.directory[self.newScope][0][2]
+
+    def addParamTypeToTable(self, paramType):
+        self.parameterTable[self.currentScope].append(paramType)
+
+    # Counts number of parameters in a function
+    def countParams(self):
+        length = len(self.parameterTable[self.currentScope])
+        if len(self.directory[self.currentScope][0]) > 1:
+            self.directory[self.currentScope][0][1] = length
+        else:
+            self.directory[self.currentScope][0].append(length)
+
+    def resetArgumentCounter(self):
+        self.argC = 0
+
+    def increaseArgumentCounter(self):
+        self.argC = self.argC + 1
+
+    def getArgumentCounter(self):
+        return self.argC
+
+    def checkArgType(self, argumentType):
+        if argumentType == self.parameterTable[self.newScope][self.argC]:
+            return True
+        else:
+            return False
+
+    def checkParamArgumentLength(self):
+        if self.argC == len(self.parameterTable[self.newScope]):
+            return True
+        else:
+            return False
+
+    def checkParamArgumentType(self,argumentType):
+        if argumentType == self.parameterTable[self.newScope][self.paramC]:
+            return True
+        else:
+            print("Error: parameter/argument type mismatch")
+            return False
 
     def addConst(self, id, type, adr):
         if type == 'int':
@@ -193,10 +282,11 @@ class FunctionDirectory(object):
     def exportVariables(self):
         exportTable = dict()
 
-        for i in self.directory:
-            exportTable[i] = [self.directory[i][0], dict()]
-            for j in self.directory[i][1]:
-                exportTable[i][1][self.getAddressVar(j)] = self.directory[i][1][j]
+        for scope in self.directory:
+            exportTable[scope] = [self.directory[scope][0], dict()]
+            self.setScope(scope)
+            for vars in self.directory[scope][1]:
+                exportTable[scope][1][self.getAddressVar(vars)] = self.directory[scope][1][vars]
 
         return exportTable
 
@@ -224,3 +314,14 @@ class FunctionDirectory(object):
 
     def exportParams(self):
         return self.parameterTable
+
+    def printDirectory(self):  # imprime funDir
+
+        for key, value in self.directory.items():
+            print("------------------------")
+            print(key)
+            print('return: ', end='')
+            print(value[0])
+            for i in value[1]:
+                print(i, end=': ')
+                print(self.directory[key][1][i])

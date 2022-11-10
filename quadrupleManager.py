@@ -4,10 +4,9 @@ class QuadrupleManager(object):
         self.operandStack = []
         self.typeStack = []
         self.operatorStack = []
-        self.tempStack = []
         self.jumpStack = []
         self.controlStack = []
-        self.resultIdx = 0
+        self.temporalIdx = 0
 
         # Quadruples come in the following format:
         # Operator, operand address, operand address, result address.
@@ -90,18 +89,6 @@ class QuadrupleManager(object):
         if self.operatorStack:
             return self.operatorStack[-1]
 
-    # Push to temporal stack.
-    def pushTempStack(self, temp):
-        self.tempStack.append(temp)
-
-    # Pop temporal stack.
-    def popTempStack(self):
-        return self.tempStack.pop()
-
-    # Get temporal stack.
-    def getTempStack(self):
-        return self.tempStack
-
     # Push to control stack.
     def pushControlStack(self, x):
         self.controlStack.append(x)
@@ -123,12 +110,12 @@ class QuadrupleManager(object):
             print("Jump stack is empty.")
 
     # Prints result index.
-    def resultCounter(self):
-        return "t" + str(self.resultIdx)
+    def temporalCounter(self):
+        return "t" + str(self.temporalIdx)
 
     # Adds 1 to the result index.
-    def resultAdd(self):
-        self.resultIdx = self.resultIdx + 1
+    def increaseTempCount(self):
+        self.temporalIdx = self.temporalIdx + 1
 
     # Push quadruple to list.
     def pushQuadruple(self, op, left, right, result):

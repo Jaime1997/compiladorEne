@@ -47,12 +47,12 @@ class EneParser(Parser):
         return p
 
     # Optionally declare global variables
-    @_('globalVars MAIN setScopeToMain "(" ")" block eof')
+    @_('globalVars MAIN setScopeToMain "(" ")" block countMain eof')
     def programBody(self, p):
         return p
 
     # Don't declare variables nor functions and go to main function
-    @_('MAIN setScopeToMain "(" ")" block eof')
+    @_('MAIN setScopeToMain "(" ")" block countMain eof')
     def programBody(self, p):
         return p
 
@@ -61,6 +61,12 @@ class EneParser(Parser):
     def setScopeToMain(self, p):
         directory.setScope("main")
         quadruples.setMainGotoAddress()
+        directory.setQuadCounter(quadruples.quadCount())
+        return p
+
+    @_('')
+    def countMain(self, p):
+        directory.countLocalVar()
         return p
 
     # Declare global variables like normal variables.
@@ -165,17 +171,14 @@ class EneParser(Parser):
     # Declare function
     @_('FUNC type ID')
     def functionDeclaration(self, p):
-        # Set scope
-        # Set return type
-        # Add func to directory
+        directory.setScope(p[2])
+        directory.setReturn(directory.getCurrentType())
+        directory.addFunction(p[2])
         return p
 
     # Function with parameters
     @_('"(" param ")" countparam block endFunc')
     def parameterDeclaration(self, p):
-        # Set scope
-        # Set return type
-        # Add func to directory
         return p
 
     # No parameter function
@@ -186,6 +189,8 @@ class EneParser(Parser):
     # Count parameters
     @_('')
     def countparam(self, p):
+        directory.countParams()
+        directory.setQuadCounter(quadruples.quadCount())
         return p
 
     @_('paramDeclaration "," param')
@@ -198,12 +203,18 @@ class EneParser(Parser):
 
     @_('type ID')
     def paramDeclaration(self, p):
-        # Add params to scope
+        directory.addVariableToContext(
+            p[1],
+            memory.addVar(directory.getCurrentType(), directory.getScope()))
+        directory.addParamTypeToTable(directory.getCurrentType())
         return p
 
     # End function
     @_('')
     def endFunc(self, p):
+        quadruples.pushQuadruple("ENDFunc", "", "", "")
+        directory.countLocalVar()
+        memory.resetLocalMemory()
         return p
 
     @_('"{" "}"')
@@ -262,8 +273,22 @@ class EneParser(Parser):
             print("Type mismatch.")
         return p
 
+    @_('ID "=" functionCall ";"')
+    def assignation(self, p):
+
+        idType = directory.getVariableType(p[0])
+        funcType = directory.directory[directory.newScope][0][0]
+        if quadruples.verifyOperatorValidity('=', (idType, funcType)):
+            quadruples.pushQuadruple('RETURNVALUE', "", "", directory.getAddress(p[0], idType))
+        else:
+            print("type mismatch")
+        return p
+
     @_('RETURN expression ";"')
     def returnStatement(self, p):
+        returnValue = quadruples.popOperandStack()
+        returnType = quadruples.popTypeStack()
+        quadruples.pushQuadruple("RETURN",directory.getAddress(returnValue, returnType),'','')
         return p
 
     @_('exp')
@@ -280,7 +305,6 @@ class EneParser(Parser):
 
     @_('')
     def binaryOp1(self, p):
-        print(quadruples.operatorStack)
         # If we're doing addition or subtraction
         if quadruples.topOperatorStack() == '+' or quadruples.topOperatorStack() == '-':
             # We take the left, right values, and the operator
@@ -294,26 +318,24 @@ class EneParser(Parser):
             if quadruples.verifyOperatorValidity(operator,(rightType,leftType)):
                 # Get result type and add it to temporal variables
                 resultType = quadruples.getOperationResultType(operator,(rightType,leftType))
-                quadruples.pushTempStack(quadruples.resultCounter())
                 adr = memory.addVar(resultType,'temp')
-                directory.addTemp(quadruples.resultCounter(), resultType, adr)
+                directory.addTemp(quadruples.temporalCounter(), resultType, adr)
                 # Create new quadruple with operation
                 quadruples.pushQuadruple(operator,
                                          directory.getAddress(leftOperand,leftType),
                                          directory.getAddress(rightOperand,rightType),
                                          adr)
                 # Push temp to operands/type stacks
-                quadruples.pushOperandStack(quadruples.resultCounter())
+                quadruples.pushOperandStack(quadruples.temporalCounter())
                 quadruples.pushTypeStack(resultType)
                 # Increase temporal index variable
-                quadruples.resultAdd()
+                quadruples.increaseTempCount()
             else:
                 print("Error: Operand types not compatible")
         return p
 
     @_('')
     def binaryOp2(self, p):
-        print(quadruples.operatorStack)
         # If we're doing multiplication or division
         if quadruples.topOperatorStack() == '*' or quadruples.topOperatorStack() == '/':
             # We take the left, right values, and the operator
@@ -327,25 +349,20 @@ class EneParser(Parser):
             if quadruples.verifyOperatorValidity(operator, (rightType, leftType)):
                 # Get result type and add it to temporal variables
                 resultType = quadruples.getOperationResultType(operator, (rightType, leftType))
-                quadruples.pushTempStack(quadruples.resultCounter())
                 adr = memory.addVar(resultType, 'temp')
-                directory.addTemp(quadruples.resultCounter(), resultType, adr)
+                directory.addTemp(quadruples.temporalCounter(), resultType, adr)
                 # Create new quadruple with operation
                 quadruples.pushQuadruple(operator,
                                          directory.getAddress(leftOperand, leftType),
                                          directory.getAddress(rightOperand, rightType),
                                          adr)
                 # Push temp to operands/type stacks
-                quadruples.pushOperandStack(quadruples.resultCounter())
+                quadruples.pushOperandStack(quadruples.temporalCounter())
                 quadruples.pushTypeStack(resultType)
                 # Increase temporal index variable
-                quadruples.resultAdd()
+                quadruples.increaseTempCount()
             else:
                 print("Error: Operand types not compatible")
-        return p
-
-    @_('functionCall')
-    def exp(self, p):
         return p
 
     @_('term binaryOp1')
@@ -410,20 +427,51 @@ class EneParser(Parser):
     def factor(self, p):
         return p
 
-    @_('ID "(" ")"')
+    @_('functionId "(" ")" validateParamSize')
     def functionCall(self, p):
         return p
 
-    @_('ID "(" paramInput')
+    @_('functionId "(" argumentInput')
     def functionCall(self, p):
         return p
 
-    @_('expression "," paramInput')
-    def paramInput(self, p):
+    @_('ID')
+    def functionId(self, p):
+        if directory.functionExists(p[0]):
+            directory.resetArgumentCounter()
+            directory.setNewScope(p[0])
+            quadruples.pushQuadruple("ERA","","",p[0])
+        else:
+            print("Error: function does not exist.")
         return p
 
-    @_('expression ")"')
-    def paramInput(self, p):
+    @_('expression addArgument "," argumentInput')
+    def argumentInput(self, p):
+        return p
+
+    @_('expression addArgument ")" validateParamSize')
+    def argumentInput(self, p):
+
+        return p
+
+    @_('')
+    def addArgument(self, p):
+        argOperand = quadruples.popOperandStack()
+        argType = quadruples.popTypeStack()
+        if directory.checkArgType(argType):
+            quadruples.pushQuadruple("ARGUMENT",
+                                     directory.getAddress(argOperand, argType),
+                                     "",
+                                     "arg" + str(directory.getArgumentCounter()))
+        directory.increaseArgumentCounter()
+        return p
+
+    @_('')
+    def validateParamSize(self, p):
+        if directory.checkParamArgumentLength():
+            quadruples.pushQuadruple("GOSUB", directory.currentScope, "", directory.getFunctionStartNumber())
+        else:
+            print("Error: number of arguments and parameters don't match")
         return p
 
     @_('ID')
@@ -462,6 +510,7 @@ class EneParser(Parser):
 
     @_('')
     def eof(self, p):
-        print("Valid")
-        #print(quadruples.printQuadrupleList())
+        #print("Valid")
+        #directory.printDirectory()
+        print(quadruples.printQuadrupleList())
         return p
