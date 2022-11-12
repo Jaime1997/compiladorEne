@@ -4,7 +4,7 @@ class EneLexer(Lexer):
 
     # Keywords
     tokens = {PROGRAM, MAIN, FUNC, ID, INT, FLOAT, CHAR, STRING,
-              CTEINT, CTEFLOAT, CTECHAR, CTESTRING, IF, ELSE, RETURN}
+              CTEINT, CTEFLOAT, CTECHAR, CTESTRING, IF, ELSE, PRINT, WRITE, RETURN}
 
     # Ignore whitespace
     ignore = '\t'
@@ -22,6 +22,8 @@ class EneLexer(Lexer):
     STRING = r'string'
     IF = r'if'
     ELSE = r'else'
+    PRINT = r'print'
+    WRITE = r'write'
     RETURN = r'return'
 
     # Skip whitespace
@@ -39,16 +41,16 @@ class EneLexer(Lexer):
     def ID(self,t):
         return t
 
-    # Int is any whole number
-    @_(r'\d+')
-    def CTEINT(self,t):
-        t.value = t.value
-        return t
-
     # Float is any whole number followed by a dot followed by a whole number
     @_(r'\d+\.\d+')
     def CTEFLOAT(self,t):
         t.value = float(t.value)
+        return t
+
+    # Int is any whole number
+    @_(r'\d+')
+    def CTEINT(self,t):
+        t.value = t.value
         return t
 
     # Any single symbol surrounded by ''
@@ -60,6 +62,7 @@ class EneLexer(Lexer):
     # Anything surrounded by ""
     @_(r'\"([^""]+)\"')
     def CTESTRING(self, t):
+        t.value = t.value
         return t
 
 

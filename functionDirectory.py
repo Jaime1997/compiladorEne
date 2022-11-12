@@ -70,6 +70,7 @@ class FunctionDirectory(object):
     def addVariableToContext(self, id, adr):
         if id in self.directory[self.currentScope][1]:
             print("Error: variable already declared.")
+            exit()
         else:
             self.directory[self.currentScope][1][id] = [self.currentType, "value", adr, []]
             # Type, value, address, dimensions
@@ -78,6 +79,7 @@ class FunctionDirectory(object):
         # If already declared, error
         if id in self.directory:
             print("Error: function already declared")
+            exit()
         # If not declared, add to directory
         else:
             self.directory[id] = [[self.currentScopeReturn], dict()]

@@ -80,6 +80,12 @@ class VirtualMachine(object):
             elif curQuad[0] == 'RETURNVALUE':
                 self.saveValue(curQuad[3], self.returnValue)
 
+            elif curQuad[0] == 'PRINT':
+                print(self.getValue(curQuad[3]))
+
+            elif curQuad[0] == 'WRITE':
+                self.write(curQuad[3])
+
             elif curQuad[0] in ['+','-','*','/']:
                 leftOperand = self.getValue(curQuad[1])
                 rightOperand = self.getValue(curQuad[2])
@@ -171,6 +177,53 @@ class VirtualMachine(object):
                 self.consts[3][adr] = value
         else:
             print('Error: value could not be saved')
+
+    def getType(self, adr):
+        # If the address is global
+        if 0 <= adr < 12500:
+            return self.directory['global'][1][adr][0]
+
+        # If the address is local
+        elif 12500 <= adr < 25000:
+            if 12500 <= adr < 15000:  # int
+                return 'int'
+            elif 15000 <= adr < 17500:  # float
+                return 'float'
+            elif 17500 <= adr < 20000:  # char
+                return 'char'
+            elif 20000 <= adr < 22500:  # string
+                return 'string'
+            elif 22500 <= adr < 25000:  # dataframe
+                return 'dataframe'
+
+        # If the address is temp
+        elif 25000 <= adr < 32500:
+            # Temp int
+            if 25000 <= adr < 27500:
+                return 'int'
+            # Temp float
+            elif 27500 <= adr < 30000:
+                return 'float'
+            # Temp bool
+            else:
+                return 'bool'
+
+        # If the address is const
+        elif 32500 <= adr < 42500:
+            # Const int
+            if 32500 <= adr < 35000:
+                return 'int'
+            # Const float
+            elif 35000 <= adr < 37500:
+                return 'float'
+            # Const char
+            elif 37500 <= adr < 40000:
+                return 'char'
+            # Const string
+            else:
+                return 'string'
+        else:
+            print('Error: value does not exist')
 
     def getLocalValue(self, adr):
         # If it is int
@@ -268,3 +321,26 @@ class VirtualMachine(object):
         self.stringLpointer -= self.localMemSize[-1][3]
         self.dataframeLpointer -= self.localMemSize[-1][4]
         self.localMemSize.pop()
+
+    def write(self, adr):
+        val = input("input>")
+        type = self.getType(adr)
+        try:
+            if type == 'int':
+                val = int(val)
+                self.saveValue(adr, val)
+            elif type == 'float':
+                val = float(val)
+                self.saveValue(adr, val)
+            elif type == 'char':
+                if len(val) > 1:
+                    print('Char must be one character')
+                    exit()
+                self.saveValue(adr, val)
+            elif type == 'string':
+                self.saveValue(adr, val)
+            else:
+                print('Invalid input')
+        except:
+            print('Error: input/variable type mismatch')
+            exit()

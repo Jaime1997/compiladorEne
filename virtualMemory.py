@@ -39,6 +39,9 @@ class VirtualMemory(object):
             elif type == 'char':
                 self.charG += 1
                 return self.charG - 1
+            elif type == 'string':
+                self.stringG += 1
+                return self.stringG - 1
 
         elif scope == 'local':
             if type == 'int':
@@ -50,6 +53,9 @@ class VirtualMemory(object):
             elif type == 'char':
                 self.charL += 1
                 return self.charL - 1
+            elif type == 'string':
+                self.stringL += 1
+                return self.stringL - 1
 
         elif scope == 'temp':
             if type == 'int':
@@ -72,6 +78,9 @@ class VirtualMemory(object):
             elif type == 'char':
                 self.charC += 1
                 return self.charC - 1
+            elif type == 'string':
+                self.stringC += 1
+                return self.stringC - 1
 
         else:
             return -1

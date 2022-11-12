@@ -69,6 +69,11 @@ class EneParser(Parser):
         directory.countLocalVar()
         return p
 
+    # Optionally declare functions after global variables.
+    @_('var declareFunctions')
+    def globalVars(self, p):
+        return p
+
     # Declare global variables like normal variables.
     @_('var')
     def globalVars(self, p):
@@ -76,11 +81,6 @@ class EneParser(Parser):
 
     # Just declare functions.
     @_('declareFunctions')
-    def globalVars(self, p):
-        return p
-
-    # Optionally declare functions after global variables.
-    @_('var declareFunctions')
     def globalVars(self, p):
         return p
 
@@ -249,6 +249,14 @@ class EneParser(Parser):
     def statement(self, p):
         return p
 
+    @_('printStatement')
+    def statement(self, p):
+        return p
+
+    @_('writeStatement')
+    def statement(self, p):
+        return p
+
     @_('returnStatement')
     def statement(self, p):
         return p
@@ -282,6 +290,45 @@ class EneParser(Parser):
             quadruples.pushQuadruple('RETURNVALUE', "", "", directory.getAddress(p[0], idType))
         else:
             print("type mismatch")
+        return p
+
+    @_('PRINT "(" printExpressions')
+    def printStatement(self, p):
+        return p
+
+    @_('printExp "," printExpressions')
+    def printExpressions(self, p):
+        return p
+
+    @_('printExp ")" ";"')
+    def printExpressions(self, p):
+        return p
+
+    @_('expression')
+    def printExp(self, p):
+        id = quadruples.popOperandStack()
+        type = quadruples.popTypeStack()
+        directory.getAddress(id, type)
+
+        quadruples.pushQuadruple("PRINT", "", "", directory.getAddress(id, type))
+        return p
+
+    @_('WRITE "(" inputIds')
+    def writeStatement(self, p):
+        return p
+
+    @_('inputId "," inputIds')
+    def inputIds(self, p):
+        return p
+
+    @_('inputId ")" ";"')
+    def inputIds(self, p):
+        return p
+
+    @_('ID')
+    def inputId(self, p):
+        if directory.variableExists(p[0]):
+            quadruples.pushQuadruple('WRITE', "", "", directory.getAddressVar(p[0]))
         return p
 
     @_('RETURN expression ";"')
@@ -490,14 +537,26 @@ class EneParser(Parser):
 
     @_('CTEFLOAT')
     def varcte(self, p):
+        quadruples.pushOperandStack(p[0])
+        quadruples.pushTypeStack("float")
+        if not directory.isConst(p[0], 'float'):
+            directory.addConst(p[0], 'float', memory.addVar('float', 'const'))
         return p
 
     @_('CTECHAR')
     def varcte(self, p):
+        quadruples.pushOperandStack(p[0])
+        quadruples.pushTypeStack("char")
+        if not directory.isConst(p[0], 'char'):
+            directory.addConst(p[0], 'char', memory.addVar('char', 'const'))
         return p
 
     @_('CTESTRING')
     def varcte(self, p):
+        quadruples.pushOperandStack(p[0])
+        quadruples.pushTypeStack("string")
+        if not directory.isConst(p[0], 'string'):
+            directory.addConst(p[0], 'string', memory.addVar('string', 'const'))
         return p
 
     @_('IF "(" expression ")" block')
@@ -512,5 +571,5 @@ class EneParser(Parser):
     def eof(self, p):
         #print("Valid")
         #directory.printDirectory()
-        print(quadruples.printQuadrupleList())
+        #print(quadruples.printQuadrupleList())
         return p

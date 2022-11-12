@@ -13,7 +13,7 @@ class QuadrupleManager(object):
         self.quadrupleList = []
 
         self.semanticCube = {
-            '=':{('int','int'):'int', ('float','float'):'float', ('char','char'):'char'},
+            '=':{('int','int'):'int', ('float','float'):'float', ('char','char'):'char', ('string','string'):'string',},
             '-': {('int', 'int'): 'int', ('float', 'float'): 'float', ('int', 'float'): 'float',
                   ('float', 'int'): 'float'},
             '+': {('int', 'int'): 'int', ('float', 'float'): 'float', ('int', 'float'): 'float',
