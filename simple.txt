@@ -18,7 +18,7 @@ main(){
     a = 5;
     b = 4;
 
-    print(!a>b or a>b);
+    print(a>b, add(2,2));
 
     c = 2*(a+b)+2;
 

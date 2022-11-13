@@ -281,17 +281,6 @@ class EneParser(Parser):
             print("Type mismatch.")
         return p
 
-    @_('ID "=" functionCall ";"')
-    def assignation(self, p):
-
-        idType = directory.getVariableType(p[0])
-        funcType = directory.directory[directory.newScope][0][0]
-        if quadruples.verifyOperatorValidity('=', (idType, funcType)):
-            quadruples.pushQuadruple('RETURNVALUE', "", "", directory.getAddress(p[0], idType))
-        else:
-            print("type mismatch")
-        return p
-
     @_('PRINT "(" printExpressions')
     def printStatement(self, p):
         return p
@@ -339,6 +328,10 @@ class EneParser(Parser):
         return p
 
     @_('exp')
+    def expression(self, p):
+        return p
+
+    @_('functionCall')
     def expression(self, p):
         return p
 
@@ -637,6 +630,15 @@ class EneParser(Parser):
         if directory.functionExists(p[0]):
             directory.resetArgumentCounter()
             directory.setNewScope(p[0])
+
+            funcType = directory.getFunctionType(p[0])
+            quadruples.pushTypeStack(funcType)
+
+            adr = memory.addVar(funcType, 'temp')
+            directory.addTemp(quadruples.temporalCounter(), funcType, adr)
+            quadruples.pushOperandStack(quadruples.temporalCounter())
+            quadruples.increaseTempCount()
+
             quadruples.pushQuadruple("ERA","","",p[0])
         else:
             print("Error: function does not exist.")
@@ -648,7 +650,6 @@ class EneParser(Parser):
 
     @_('expression addArgument ")" validateParamSize')
     def argumentInput(self, p):
-
         return p
 
     @_('')
@@ -666,7 +667,12 @@ class EneParser(Parser):
     @_('')
     def validateParamSize(self, p):
         if directory.checkParamArgumentLength():
+            returnOperand = quadruples.popOperandStack()
+            returnType = quadruples.popTypeStack()
             quadruples.pushQuadruple("GOSUB", directory.currentScope, "", directory.getFunctionStartNumber())
+            quadruples.pushQuadruple('RETURNVALUE', "", "", directory.getAddress(returnOperand,returnType))
+            quadruples.pushOperandStack(returnOperand)
+            quadruples.pushTypeStack(returnType)
         else:
             print("Error: number of arguments and parameters don't match")
         return p
@@ -721,5 +727,5 @@ class EneParser(Parser):
     def eof(self, p):
         #print("Valid")
         #directory.printDirectory()
-        print(quadruples.printQuadrupleList())
+        #print(quadruples.printQuadrupleList())
         return p

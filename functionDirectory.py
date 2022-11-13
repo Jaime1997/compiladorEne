@@ -192,6 +192,13 @@ class FunctionDirectory(object):
         else:
             print("Error: variable type not found.")
 
+    def getFunctionType(self, id):
+        # Checks if it exists in the current scope
+        if id in self.directory:
+            return self.directory[id][0][0]
+        else:
+            print("Error: function type not found.")
+
     # Checks if a variable exists
     def variableExists(self, id):
         # Checks in current scope
