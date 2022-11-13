@@ -18,13 +18,17 @@ main(){
     a = 5;
     b = 4;
 
-    if(a>b){
+    if(add(2,2) > add(1,1)){
         print("true");
+    } else if(a<b) {
+        print("elsif");
+    } else if (5>2) {
+        print("elsif 2");
     } else {
         print("false");
     }
 
-    c = 2*(a+b)+2;
+    c = 2*(add(a,b)+2)+2;
 
     d = add(a,b);
     e = sub(c,d);

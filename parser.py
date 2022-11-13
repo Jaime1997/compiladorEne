@@ -331,10 +331,6 @@ class EneParser(Parser):
     def expression(self, p):
         return p
 
-    @_('functionCall')
-    def expression(self, p):
-        return p
-
     @_('compExp')
     def expression(self, p):
         return p
@@ -599,6 +595,10 @@ class EneParser(Parser):
         quadruples.pushOperatorStack(p[2])
         return p
 
+    @_('functionCall')
+    def factor(self, p):
+        return p
+
     @_('pushFakeBottom "(" expression ")" popFakeBottom')
     def factor(self, p):
         return p
@@ -729,6 +729,13 @@ class EneParser(Parser):
         quadruples.fill(end, cont)
         return p
 
+    @_('decision block writeElseQuad ELSE condition')
+    def condition(self, p):
+        end = quadruples.popJumpStack()
+        cont = quadruples.quadCount()
+        quadruples.fill(end, cont)
+        return p
+
     @_('IF "(" expression ")"')
     def decision(self, p):
         type = quadruples.popTypeStack()
@@ -745,7 +752,6 @@ class EneParser(Parser):
     @_('')
     def writeElseQuad(self, p):
         quadruples.pushQuadruple("GOTO", "", "", "_")
-
         false = quadruples.popJumpStack()
         cont = quadruples.quadCount()
         quadruples.pushJumpStack(cont - 1)
