@@ -15,6 +15,10 @@ func int add(int x, int y){
 main(){
     int a, b, c, d, e;
 
+    for(int i = 0; i<10; 1){
+        print(i);
+    }
+
     a = 5;
     b = 4;
 

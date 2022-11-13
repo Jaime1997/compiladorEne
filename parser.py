@@ -253,6 +253,10 @@ class EneParser(Parser):
     def statement(self, p):
         return p
 
+    @_('forStatement')
+    def statement(self, p):
+        return p
+
     @_('printStatement')
     def statement(self, p):
         return p
@@ -793,6 +797,88 @@ class EneParser(Parser):
         ret = quadruples.popJumpStack()
         quadruples.pushQuadruple("GOTO", '', '', ret)
         quadruples.fill(end, quadruples.quadCount())
+        return p
+
+    @_('FOR "(" type declareIdx "=" exp assignIdx ";" expression forCondition ";" step ")" block loopFor')
+    def forStatement(self, p):
+        return p
+
+    @_('ID')
+    def declareIdx(self, p):
+        type = directory.getCurrentType()
+        if type == 'int' or type == 'float':
+            directory.addVariableToContext(p[0],
+                                           memory.addVar(directory.getCurrentType(), directory.getScope()))
+            quadruples.pushOperandStack(p[0])
+            quadruples.pushTypeStack(type)
+        else:
+            print("Error: can only iterate int or floats")
+            exit()
+        return p
+
+    @_('')
+    def assignIdx(self, p):
+        expType = quadruples.popTypeStack()
+        if expType == 'int' or expType == 'float':
+            expOperand = quadruples.popOperandStack()
+            vControl = quadruples.topOperandStack()
+            adr = memory.addVar(quadruples.topTypeStack(), 'temp')
+
+            directory.addTemp(quadruples.temporalCounter(), quadruples.topTypeStack(), adr)
+            quadruples.increaseTempCount()
+            quadruples.pushControlStack(adr)
+            if quadruples.verifyOperatorValidity('=', (expType, quadruples.topTypeStack())):
+                quadruples.pushQuadruple('=',
+                                         directory.getAddress(expOperand, expType),'',
+                                         directory.getAddress(vControl, quadruples.topTypeStack()))
+                quadruples.pushQuadruple('=',
+                                         directory.getAddress(expOperand, expType), '', adr)
+                quadruples.pushJumpStack(quadruples.quadCount())
+            else:
+                print("Error: Type mismatch")
+                exit()
+        return p
+
+    @_('')
+    def forCondition(self, p):
+        expType = quadruples.popTypeStack()
+        if expType == "bool":
+            result = quadruples.popOperandStack()
+            quadruples.pushQuadruple("GOTOF", directory.getAddress(result, expType), "", "")
+            quadruples.pushJumpStack(quadruples.quadCount() - 1)
+        else:
+            print("Error: for conditional must be boolean")
+            exit()
+        return p
+
+    @_('exp')
+    def step(self, p):
+
+        stepOperand = quadruples.popOperandStack()
+        stepType = quadruples.popTypeStack()
+
+        if stepType == 'int' or stepType == 'float':
+            vControl = quadruples.popControlStack()
+            adrBool = memory.addVar(stepType, 'temp')
+            directory.addTemp(quadruples.temporalCounter(), stepType, adrBool)
+            quadruples.increaseTempCount()
+            quadruples.pushQuadruple('+', vControl, directory.getAddress(stepOperand, stepType), adrBool)
+            quadruples.pushQuadruple('=', adrBool, '', vControl)
+            quadruples.pushQuadruple('=', adrBool, '',
+                                     directory.getAddress(quadruples.popOperandStack(),
+                                                          quadruples.popTypeStack()))
+        else:
+            print("Error: for step value must be int or float")
+            exit()
+        return p
+
+    @_('')
+    def loopFor(self, p):
+        end = quadruples.popJumpStack()
+        ret = quadruples.popJumpStack()
+        quadruples.pushQuadruple('GOTO', '', '', ret)
+        quadruples.fill(end, quadruples.quadCount())
+        return p
 
     @_('')
     def eof(self, p):

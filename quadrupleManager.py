@@ -89,9 +89,17 @@ class QuadrupleManager(object):
         if self.operatorStack:
             return self.operatorStack[-1]
 
+    def topOperandStack(self):
+        if self.operandStack:
+            return self.operandStack[-1]
+
+    def topTypeStack(self):
+        if self.typeStack:
+            return self.typeStack[-1]
+
     # Push to control stack.
-    def pushControlStack(self, x):
-        self.controlStack.append(x)
+    def pushControlStack(self, i):
+        self.controlStack.append(i)
 
     # Pop control stack.
     def popControlStack(self):
