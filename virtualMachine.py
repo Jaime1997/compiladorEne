@@ -45,6 +45,11 @@ class VirtualMachine(object):
                 self.pointer = curQuad[3]
                 self.isJumping = True
 
+            elif curQuad[0] == 'GOTOF':
+                if self.getValue(curQuad[1]) == False:
+                    self.pointer = curQuad[3]
+                    self.isJumping = True
+
             elif curQuad[0] == 'GOSUB':
                 self.currentScope = self.nextScope
                 self.scopeStack.append(curQuad[1])

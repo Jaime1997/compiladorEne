@@ -18,7 +18,11 @@ main(){
     a = 5;
     b = 4;
 
-    print(a>b, add(2,2));
+    if(a>b){
+        print("true");
+    } else {
+        print("false");
+    }
 
     c = 2*(a+b)+2;
 

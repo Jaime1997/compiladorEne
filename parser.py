@@ -715,17 +715,46 @@ class EneParser(Parser):
             directory.addConst(p[0], 'string', memory.addVar('string', 'const'))
         return p
 
-    @_('IF "(" expression ")" block')
+    @_('decision block')
     def condition(self, p):
+        end = quadruples.popJumpStack()
+        cont = quadruples.quadCount()
+        quadruples.fill(end, cont)
         return p
 
-    @_('IF "(" expression ")" block ELSE block')
+    @_('decision block writeElseQuad ELSE block')
     def condition(self, p):
+        end = quadruples.popJumpStack()
+        cont = quadruples.quadCount()
+        quadruples.fill(end, cont)
+        return p
+
+    @_('IF "(" expression ")"')
+    def decision(self, p):
+        type = quadruples.popTypeStack()
+        if type != "bool":
+            print("Conditional statements must be boolean")
+            exit()
+        else:
+            exp = quadruples.popOperandStack()
+            quadruples.pushQuadruple("GOTOF", directory.getAddress(exp, type), "", "")
+            curQuad = quadruples.quadCount()
+            quadruples.pushJumpStack(curQuad - 1)
+        return p
+
+    @_('')
+    def writeElseQuad(self, p):
+        quadruples.pushQuadruple("GOTO", "", "", "_")
+
+        false = quadruples.popJumpStack()
+        cont = quadruples.quadCount()
+        quadruples.pushJumpStack(cont - 1)
+        quadruples.fill(false, cont)
         return p
 
     @_('')
     def eof(self, p):
         #print("Valid")
         #directory.printDirectory()
-        #print(quadruples.printQuadrupleList())
+        print(quadruples.printQuadrupleList())
         return p
