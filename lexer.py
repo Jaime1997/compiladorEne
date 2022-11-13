@@ -4,13 +4,13 @@ class EneLexer(Lexer):
 
     # Keywords
     tokens = {PROGRAM, MAIN, FUNC, ID, INT, FLOAT, CHAR, STRING,
-              CTEINT, CTEFLOAT, CTECHAR, CTESTRING, IF, ELSE, PRINT, WRITE, RETURN}
+              CTEINT, CTEFLOAT, CTECHAR, CTESTRING, IF, ELSE, AND, OR, PRINT, WRITE, RETURN}
 
     # Ignore whitespace
     ignore = '\t'
 
     # Operators and delimiters
-    literals = {';',',',':','{','}','=','(',')','+','-','*','/','<','>','[',']'}
+    literals = {';',',',':','{','}','=','!','(',')','+','-','*','/','<','>','[',']'}
 
     # Definitions
     PROGRAM = r'program'
@@ -22,6 +22,8 @@ class EneLexer(Lexer):
     STRING = r'string'
     IF = r'if'
     ELSE = r'else'
+    AND = r'and'
+    OR = r'or'
     PRINT = r'print'
     WRITE = r'write'
     RETURN = r'return'

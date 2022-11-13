@@ -86,6 +86,14 @@ class VirtualMachine(object):
             elif curQuad[0] == 'WRITE':
                 self.write(curQuad[3])
 
+            elif curQuad[0] in ['MINUS']:
+                result = -self.getValue(curQuad[2])
+                self.saveValue(curQuad[3], result)
+
+            elif curQuad[0] in ['!']:
+                result = not self.getValue(curQuad[2])
+                self.saveValue(curQuad[3], result)
+
             elif curQuad[0] in ['+','-','*','/']:
                 leftOperand = self.getValue(curQuad[1])
                 rightOperand = self.getValue(curQuad[2])
@@ -93,6 +101,13 @@ class VirtualMachine(object):
                 #print(leftOperand,operator,rightOperand)
                 result = eval(f'{leftOperand} {operator} {rightOperand}')
                 #print(result)
+                self.saveValue(curQuad[3], result)
+
+            elif curQuad[0] in ['<', '>', '<=', '>=', '==', "!=", "and", "or"]:
+                leftOperand = self.getValue(curQuad[1])
+                rightOperand = self.getValue(curQuad[2])
+                operator = curQuad[0]
+                result = eval(f'{leftOperand} {operator} {rightOperand}')
                 self.saveValue(curQuad[3], result)
 
             elif curQuad[0] == '=':

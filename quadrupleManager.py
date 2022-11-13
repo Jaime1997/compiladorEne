@@ -34,8 +34,8 @@ class QuadrupleManager(object):
                    ('float', 'int'): 'bool', ('char', 'char'): 'bool', ('string', 'string'): 'bool'},
             '==': {('int', 'int'): 'bool', ('float', 'float'): 'bool', ('int', 'float'): 'bool',
                    ('float', 'int'): 'bool', ('char', 'char'): 'bool', ('string', 'string'): 'bool'},
-            '&&': {('bool', 'bool'): 'bool'},
-            '||': {('bool', 'bool'): 'bool'},
+            'and': {('bool', 'bool'): 'bool'},
+            'or': {('bool', 'bool'): 'bool'},
             '!': {('bool'): 'bool'}
         }
 

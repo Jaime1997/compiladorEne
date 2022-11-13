@@ -342,12 +342,162 @@ class EneParser(Parser):
     def expression(self, p):
         return p
 
-    @_('exp ">" exp')
+    @_('compExp')
     def expression(self, p):
         return p
 
-    @_('exp "<" exp')
-    def expression(self, p):
+    @_('compExp AND compExp')
+    def compExp(self, p):
+        rightOperand = quadruples.popOperandStack()
+        rightType = quadruples.popTypeStack()
+        leftOperand = quadruples.popOperandStack()
+        leftType = quadruples.popTypeStack()
+        if quadruples.verifyOperatorValidity('and', (rightType, leftType)):
+            resultType = quadruples.getOperationResultType('and', (rightType, leftType))
+            adr = memory.addVar(resultType, 'temp')
+            directory.addTemp(quadruples.temporalCounter(), resultType, adr)
+            quadruples.pushQuadruple('and', directory.getAddress(leftOperand, leftType),
+                                     directory.getAddress(rightOperand, rightType), adr)
+            quadruples.pushOperandStack(quadruples.temporalCounter())
+            quadruples.pushTypeStack(resultType)
+            quadruples.increaseTempCount()
+        return p
+
+    @_('compExp OR compExp')
+    def compExp(self, p):
+        rightOperand = quadruples.popOperandStack()
+        rightType = quadruples.popTypeStack()
+        leftOperand = quadruples.popOperandStack()
+        leftType = quadruples.popTypeStack()
+        if quadruples.verifyOperatorValidity('or', (rightType, leftType)):
+            resultType = quadruples.getOperationResultType('or', (rightType, leftType))
+            adr = memory.addVar(resultType, 'temp')
+            directory.addTemp(quadruples.temporalCounter(), resultType, adr)
+            quadruples.pushQuadruple('or', directory.getAddress(leftOperand, leftType),
+                                     directory.getAddress(rightOperand, rightType), adr)
+            quadruples.pushOperandStack(quadruples.temporalCounter())
+            quadruples.pushTypeStack(resultType)
+            quadruples.increaseTempCount()
+        return p
+
+    @_('"!" exp comparisonExp')
+    def compExp(self, p):
+        rightOperand = quadruples.popOperandStack()
+        rightType = quadruples.popTypeStack()
+        if quadruples.verifyOperatorValidity('!', (rightType)):
+            resultType = quadruples.getOperationResultType('!', (rightType))
+            adr = memory.addVar(resultType, 'temp')
+            directory.addTemp(quadruples.temporalCounter(), resultType, adr)
+            quadruples.pushQuadruple('!', "",
+                                     directory.getAddress(rightOperand, rightType), adr)
+            quadruples.pushOperandStack(quadruples.temporalCounter())
+            quadruples.pushTypeStack(resultType)
+            quadruples.increaseTempCount()
+        return p
+
+    @_('exp comparisonExp')
+    def compExp(self, p):
+        return p
+
+    @_('">" exp')
+    def comparisonExp(self, p):
+        rightOperand = quadruples.popOperandStack()
+        rightType = quadruples.popTypeStack()
+        leftOperand = quadruples.popOperandStack()
+        leftType = quadruples.popTypeStack()
+        if quadruples.verifyOperatorValidity('>', (rightType, leftType)):
+            resultType = quadruples.getOperationResultType('>', (rightType, leftType))
+            adr = memory.addVar(resultType, 'temp')
+            directory.addTemp(quadruples.temporalCounter(), resultType, adr)
+            quadruples.pushQuadruple('>', directory.getAddress(leftOperand, leftType), directory.getAddress(rightOperand, rightType), adr)
+            quadruples.pushOperandStack(quadruples.temporalCounter())
+            quadruples.pushTypeStack(resultType)
+            quadruples.increaseTempCount()
+        return p
+
+    @_('">" "=" exp')
+    def comparisonExp(self, p):
+        rightOperand = quadruples.popOperandStack()
+        rightType = quadruples.popTypeStack()
+        leftOperand = quadruples.popOperandStack()
+        leftType = quadruples.popTypeStack()
+        if quadruples.verifyOperatorValidity('>=', (rightType, leftType)):
+            resultType = quadruples.getOperationResultType('>=', (rightType, leftType))
+            adr = memory.addVar(resultType, 'temp')
+            directory.addTemp(quadruples.temporalCounter(), resultType, adr)
+            quadruples.pushQuadruple('>=', directory.getAddress(leftOperand, leftType),
+                                     directory.getAddress(rightOperand, rightType), adr)
+            quadruples.pushOperandStack(quadruples.temporalCounter())
+            quadruples.pushTypeStack(resultType)
+            quadruples.increaseTempCount()
+        return p
+
+    @_('"<" exp')
+    def comparisonExp(self, p):
+        rightOperand = quadruples.popOperandStack()
+        rightType = quadruples.popTypeStack()
+        leftOperand = quadruples.popOperandStack()
+        leftType = quadruples.popTypeStack()
+        if quadruples.verifyOperatorValidity('<', (rightType, leftType)):
+            resultType = quadruples.getOperationResultType('<', (rightType, leftType))
+            adr = memory.addVar(resultType, 'temp')
+            directory.addTemp(quadruples.temporalCounter(), resultType, adr)
+            quadruples.pushQuadruple('<', directory.getAddress(leftOperand, leftType),
+                                     directory.getAddress(rightOperand, rightType), adr)
+            quadruples.pushOperandStack(quadruples.temporalCounter())
+            quadruples.pushTypeStack(resultType)
+            quadruples.increaseTempCount()
+        return p
+
+    @_('"<" "=" exp')
+    def comparisonExp(self, p):
+        rightOperand = quadruples.popOperandStack()
+        rightType = quadruples.popTypeStack()
+        leftOperand = quadruples.popOperandStack()
+        leftType = quadruples.popTypeStack()
+        if quadruples.verifyOperatorValidity('<=', (rightType, leftType)):
+            resultType = quadruples.getOperationResultType('<=', (rightType, leftType))
+            adr = memory.addVar(resultType, 'temp')
+            directory.addTemp(quadruples.temporalCounter(), resultType, adr)
+            quadruples.pushQuadruple('<=', directory.getAddress(leftOperand, leftType),
+                                     directory.getAddress(rightOperand, rightType), adr)
+            quadruples.pushOperandStack(quadruples.temporalCounter())
+            quadruples.pushTypeStack(resultType)
+            quadruples.increaseTempCount()
+        return p
+
+    @_('"=" "=" exp')
+    def comparisonExp(self, p):
+        rightOperand = quadruples.popOperandStack()
+        rightType = quadruples.popTypeStack()
+        leftOperand = quadruples.popOperandStack()
+        leftType = quadruples.popTypeStack()
+        if quadruples.verifyOperatorValidity('==', (rightType, leftType)):
+            resultType = quadruples.getOperationResultType('==', (rightType, leftType))
+            adr = memory.addVar(resultType, 'temp')
+            directory.addTemp(quadruples.temporalCounter(), resultType, adr)
+            quadruples.pushQuadruple('==', directory.getAddress(leftOperand, leftType),
+                                     directory.getAddress(rightOperand, rightType), adr)
+            quadruples.pushOperandStack(quadruples.temporalCounter())
+            quadruples.pushTypeStack(resultType)
+            quadruples.increaseTempCount()
+        return p
+
+    @_('"!" "=" exp')
+    def comparisonExp(self, p):
+        rightOperand = quadruples.popOperandStack()
+        rightType = quadruples.popTypeStack()
+        leftOperand = quadruples.popOperandStack()
+        leftType = quadruples.popTypeStack()
+        if quadruples.verifyOperatorValidity('!=', (rightType, leftType)):
+            resultType = quadruples.getOperationResultType('!=', (rightType, leftType))
+            adr = memory.addVar(resultType, 'temp')
+            directory.addTemp(quadruples.temporalCounter(), resultType, adr)
+            quadruples.pushQuadruple('!=', directory.getAddress(leftOperand, leftType),
+                                     directory.getAddress(rightOperand, rightType), adr)
+            quadruples.pushOperandStack(quadruples.temporalCounter())
+            quadruples.pushTypeStack(resultType)
+            quadruples.increaseTempCount()
         return p
 
     @_('')
@@ -571,5 +721,5 @@ class EneParser(Parser):
     def eof(self, p):
         #print("Valid")
         #directory.printDirectory()
-        #print(quadruples.printQuadrupleList())
+        print(quadruples.printQuadrupleList())
         return p

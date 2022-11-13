@@ -1,8 +1,5 @@
 program simple;
 
-int giA, giB;
-float gfA, gfB;
-
 func int sub(int x, int y){
     int result;
     result = x - y;
@@ -15,41 +12,18 @@ func int add(int x, int y){
     return result;
 }
 
-func float addFloat(float x, float y){
-    float result;
-    result = x + y;
-    return result;
-}
-
 main(){
-    int a, b, c, d, e, f;
-    float a1, b1, c1;
-    string s1;
-    char c2, ch;
-
-    giA = 2;
-    gfB = 2.22;
-
-    write(ch);
-    print(ch);
-
-    write(f,giB);
-    print(f,giB);
-
-    s1 = "stwing";
-    c2 = 'c';
+    int a, b, c, d, e;
 
     a = 5;
-    a1 = 1.1 * 5;
-
-    print(a, c2, 2+2.2, "hola", s1);
-
     b = 4;
-    b1 = 4.4 / 2.2;
+
+    print(!a>b or a>b);
 
     c = 2*(a+b)+2;
-    c1 = addFloat(a1,b1);
 
     d = add(a,b);
     e = sub(c,d);
+
+    print(a,b,c,d,e);
 }
