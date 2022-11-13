@@ -4,7 +4,8 @@ class EneLexer(Lexer):
 
     # Keywords
     tokens = {PROGRAM, MAIN, FUNC, ID, INT, FLOAT, CHAR, STRING,
-              CTEINT, CTEFLOAT, CTECHAR, CTESTRING, IF, ELSE, AND, OR, PRINT, WRITE, RETURN}
+              CTEINT, CTEFLOAT, CTECHAR, CTESTRING, IF, ELSE, AND,
+              OR, PRINT, WRITE, WHILE, DO, RETURN}
 
     # Ignore whitespace
     ignore = '\t'
@@ -26,6 +27,8 @@ class EneLexer(Lexer):
     OR = r'or'
     PRINT = r'print'
     WRITE = r'write'
+    WHILE = r'while'
+    DO = r'do'
     RETURN = r'return'
 
     # Skip whitespace

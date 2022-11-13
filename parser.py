@@ -249,6 +249,10 @@ class EneParser(Parser):
     def statement(self, p):
         return p
 
+    @_('whileStatement')
+    def statement(self, p):
+        return p
+
     @_('printStatement')
     def statement(self, p):
         return p
@@ -757,6 +761,38 @@ class EneParser(Parser):
         quadruples.pushJumpStack(cont - 1)
         quadruples.fill(false, cont)
         return p
+
+    @_('WHILE whilePushJump "(" expression ")" checkWhileExp block fillWhileGoto')
+    def whileStatement(self, p):
+        return p
+
+    @_('DO whilePushJump block WHILE "(" expression ")" checkWhileExp fillWhileGoto')
+    def whileStatement(self, p):
+        return p
+
+    @_('')
+    def whilePushJump(self, p):
+        quadruples.pushJumpStack(quadruples.quadCount())
+        return p
+
+    @_('')
+    def checkWhileExp(self, p):
+        expressionType = quadruples.popTypeStack()
+        if expressionType == "bool":
+            result = quadruples.popOperandStack()
+            quadruples.pushQuadruple("GOTOF", directory.getAddress(result, expressionType), "", "")
+            quadruples.pushJumpStack(quadruples.quadCount() - 1)
+        else:
+            print("Error: while conditional must be boolean")
+            exit()
+        return p
+
+    @_('')
+    def fillWhileGoto(self, p):
+        end = quadruples.popJumpStack()
+        ret = quadruples.popJumpStack()
+        quadruples.pushQuadruple("GOTO", '', '', ret)
+        quadruples.fill(end, quadruples.quadCount())
 
     @_('')
     def eof(self, p):
