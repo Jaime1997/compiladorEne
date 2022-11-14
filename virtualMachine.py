@@ -63,7 +63,6 @@ class VirtualMachine(object):
 
             elif curQuad[0] == 'ERA':
                 self.nextScope = curQuad[3]
-                self.arguments = []
                 self.calcFuncSize(self.currentScope)
 
             elif curQuad[0] == 'ARGUMENT':
@@ -74,6 +73,7 @@ class VirtualMachine(object):
                 self.currentScope = self.scopeStack.pop()
                 self.exitFunction()
                 self.recursionCounter -= 1
+                self.arguments = []
 
             elif curQuad[0] == 'RETURN':
                 self.returnValue = self.getValue(curQuad[1])
@@ -81,6 +81,7 @@ class VirtualMachine(object):
                 self.currentScope = self.scopeStack.pop()
                 self.exitFunction()
                 self.recursionCounter -= 1
+                self.arguments = []
 
             elif curQuad[0] == 'RETURNVALUE':
                 self.saveValue(curQuad[3], self.returnValue)

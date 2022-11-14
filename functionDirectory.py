@@ -18,11 +18,12 @@ class FunctionDirectory(object):
         # Function return value
         self.currentScopeReturn = ""
         # Scope to be created
-        self.newScope = ""
+        self.newScope = []
         # Type of value being parsed.
         self.currentType = ""
         # Helps check argument/parameter number agreement
-        self.argC = 0
+        self.funcC = -1
+        self.argC = []
         self.auxArrId = ""
 
     def addProgram(self, id):
@@ -48,7 +49,7 @@ class FunctionDirectory(object):
         self.currentScope = scope
 
     def setNewScope(self, scope):
-        self.newScope = scope
+        self.newScope.append(scope)
 
     def setReturn(self, returnValue):
         self.currentScopeReturn = returnValue
@@ -121,7 +122,7 @@ class FunctionDirectory(object):
             self.directory[self.currentScope][0].append(count)
 
     def getFunctionStartNumber(self):
-        return self.directory[self.newScope][0][2]
+        return self.directory[self.newScope[self.funcC]][0][2]
 
     def addParamTypeToTable(self, paramType):
         self.parameterTable[self.currentScope].append(paramType)
@@ -134,29 +135,41 @@ class FunctionDirectory(object):
         else:
             self.directory[self.currentScope][0].append(length)
 
-    def resetArgumentCounter(self):
-        self.argC = 0
+    def popArgumentCounter(self):
+        self.argC.pop()
+
+    def popScopeStack(self):
+        self.newScope.pop()
+
+    def initArgumentCounter(self):
+        self.argC.append(0)
+
+    def increaseFunctionCallCounter(self):
+        self.funcC = self.funcC + 1
+
+    def decreaseFunctionCallCounter(self):
+        self.funcC = self.funcC - 1
 
     def increaseArgumentCounter(self):
-        self.argC = self.argC + 1
+        self.argC[self.funcC] = self.argC[self.funcC] + 1
 
     def getArgumentCounter(self):
-        return self.argC
+        return self.argC[self.funcC]
 
     def checkArgType(self, argumentType):
-        if argumentType == self.parameterTable[self.newScope][self.argC]:
+        if argumentType == self.parameterTable[self.newScope[self.funcC]][self.argC[self.funcC]]:
             return True
         else:
             return False
 
     def checkParamArgumentLength(self):
-        if self.argC == len(self.parameterTable[self.newScope]):
+        if self.argC[self.funcC] == len(self.parameterTable[self.newScope[self.funcC]]):
             return True
         else:
             return False
 
     def checkParamArgumentType(self,argumentType):
-        if argumentType == self.parameterTable[self.newScope][self.paramC]:
+        if argumentType == self.parameterTable[self.newScope[self.funcC]][self.paramC]:
             return True
         else:
             print("Error: parameter/argument type mismatch")

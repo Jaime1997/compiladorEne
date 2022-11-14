@@ -636,7 +636,8 @@ class EneParser(Parser):
     @_('ID')
     def functionId(self, p):
         if directory.functionExists(p[0]):
-            directory.resetArgumentCounter()
+            directory.increaseFunctionCallCounter()
+            directory.initArgumentCounter()
             directory.setNewScope(p[0])
 
             funcType = directory.getFunctionType(p[0])
@@ -681,6 +682,10 @@ class EneParser(Parser):
             quadruples.pushQuadruple('RETURNVALUE', "", "", directory.getAddress(returnOperand,returnType))
             quadruples.pushOperandStack(returnOperand)
             quadruples.pushTypeStack(returnType)
+
+            directory.popArgumentCounter()
+            directory.popScopeStack()
+            directory.decreaseFunctionCallCounter()
         else:
             print("Error: number of arguments and parameters don't match")
         return p
