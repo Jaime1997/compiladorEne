@@ -1,7 +1,0 @@
-program test;
-
-main(){
-    for(float i = 0.5; i<10; 1.5){
-        print(i);
-    }
-}

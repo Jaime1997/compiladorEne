@@ -26,5 +26,5 @@ main(){
     print(a,b,c,d,e);
 
     f = add(sub(5,2),5*2);
-    print(f);
+    print("f es:",f);
 }

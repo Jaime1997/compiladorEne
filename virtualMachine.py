@@ -30,8 +30,8 @@ class VirtualMachine(object):
         # Local memory
         # int, float, char, string, dataframe
         self.localMem = [[None] * 2500, [None] * 2500, [None] * 2500, [None] * 2500, [None] * 2500]
-        self.localMemSize = [[0, 0, 0, 0, 0]]
-        self.arguments = []
+        self.localMemSize = []
+        self.arguments = [[]]
 
     def runProgram(self):
         eof = len(self.quads)
@@ -53,10 +53,10 @@ class VirtualMachine(object):
             elif curQuad[0] == 'GOSUB':
                 self.currentScope = self.nextScope
                 self.scopeStack.append(curQuad[1])
-                self.recursionCounter += 1
                 self.addFuncSizeToPointer()
                 self.saveArgumentsInLocalMemory()
-
+                self.recursionCounter += 1
+                self.arguments.append([])
 
                 self.pointerBreadcrumb.append(self.pointer)
                 self.pointer = curQuad[3] - 1
@@ -66,14 +66,16 @@ class VirtualMachine(object):
                 self.calcFuncSize(self.currentScope)
 
             elif curQuad[0] == 'ARGUMENT':
-                self.arguments.append(self.getValue(curQuad[1]))
+                if curQuad[3] == 'arg0':
+                    self.arguments[self.recursionCounter] = []
+                self.arguments[self.recursionCounter].append(self.getValue(curQuad[1]))
 
             elif curQuad[0] == 'ENDFunc':
                 self.pointer = self.pointerBreadcrumb.pop()
                 self.currentScope = self.scopeStack.pop()
                 self.exitFunction()
                 self.recursionCounter -= 1
-                self.arguments = []
+                self.arguments.pop()
 
             elif curQuad[0] == 'RETURN':
                 self.returnValue = self.getValue(curQuad[1])
@@ -81,7 +83,7 @@ class VirtualMachine(object):
                 self.currentScope = self.scopeStack.pop()
                 self.exitFunction()
                 self.recursionCounter -= 1
-                self.arguments = []
+                self.arguments.pop()
 
             elif curQuad[0] == 'RETURNVALUE':
                 self.saveValue(curQuad[3], self.returnValue)
@@ -113,6 +115,7 @@ class VirtualMachine(object):
                 leftOperand = self.getValue(curQuad[1])
                 rightOperand = self.getValue(curQuad[2])
                 operator = curQuad[0]
+                #print(leftOperand,operator,rightOperand)
                 result = eval(f'{leftOperand} {operator} {rightOperand}')
                 self.saveValue(curQuad[3], result)
 
@@ -321,7 +324,7 @@ class VirtualMachine(object):
 
     def saveArgumentsInLocalMemory(self):
         i = 0
-        for j in self.arguments:
+        for j in self.arguments[self.recursionCounter]:
             if self.params[self.currentScope][i] == 'int':
                 self.localMem[0][self.intLpointer + i] = j
             elif self.params[self.currentScope][i] == 'float':

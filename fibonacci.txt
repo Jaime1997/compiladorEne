@@ -1,0 +1,21 @@
+program fibonacci;
+
+func int fib(int j)
+{
+    int a,b,f;
+    if(j <= 1){
+        return(j);
+    }
+    a = fib(j-1);
+    b = fib(j-2);
+    f = a+b;
+    return(f);
+}
+
+main(){
+    int i, k;
+    print("Numero de niveles de fibonacci");
+    write(i);
+    k = fib(i);
+    print(k);
+}
