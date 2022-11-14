@@ -14,17 +14,21 @@ func int add(int x, int y){
 
 main(){
     int a, b, c, d, e, f;
+    int negA;
 
     a = 5;
     b = 4;
 
     c = 2*(add(a,b)+2)+2;
 
-    d = add(a,b);
-    e = sub(c,d);
+    d = add(b,a);
+    e = sub(c,4);
 
     print(a,b,c,d,e);
 
     f = add(sub(5,2),5*2);
     print("f es:",f);
+
+    negA = -5;
+    print((negA-2)*-2);
 }

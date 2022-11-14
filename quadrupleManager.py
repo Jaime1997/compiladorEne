@@ -15,7 +15,8 @@ class QuadrupleManager(object):
         self.semanticCube = {
             '=':{('int','int'):'int', ('float','float'):'float', ('char','char'):'char', ('string','string'):'string',},
             '-': {('int', 'int'): 'int', ('float', 'float'): 'float', ('int', 'float'): 'float',
-                  ('float', 'int'): 'float'},
+                  ('float', 'int'): 'float',
+                  ('int'): 'int', ('float'): 'float'},
             '+': {('int', 'int'): 'int', ('float', 'float'): 'float', ('int', 'float'): 'float',
                   ('float', 'int'): 'float'},
             '/': {('int', 'int'): 'float', ('float', 'float'): 'float', ('int', 'float'): 'float',

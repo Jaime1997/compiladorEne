@@ -385,8 +385,10 @@ class EneParser(Parser):
             resultType = quadruples.getOperationResultType('!', (rightType))
             adr = memory.addVar(resultType, 'temp')
             directory.addTemp(quadruples.temporalCounter(), resultType, adr)
-            quadruples.pushQuadruple('!', "",
-                                     directory.getAddress(rightOperand, rightType), adr)
+            quadruples.pushQuadruple('!',
+                                     directory.getAddress(rightOperand, rightType),
+                                     "",
+                                     adr)
             quadruples.pushOperandStack(quadruples.temporalCounter())
             quadruples.pushTypeStack(resultType)
             quadruples.increaseTempCount()
@@ -498,6 +500,35 @@ class EneParser(Parser):
         return p
 
     @_('')
+    def unaryOp(self, p):
+        # If we're doing addition or subtraction
+        if quadruples.topOperatorStack() == '-':
+            # We take the left, right values, and the operator
+            rightOperand = quadruples.popOperandStack()
+            rightType = quadruples.popTypeStack()
+            operator = quadruples.popOperatorStack()
+
+            # If operation exists in semantic cube
+            if quadruples.verifyOperatorValidity(operator, rightType):
+                # Get result type and add it to temporal variables
+                resultType = quadruples.getOperationResultType(operator, rightType)
+                adr = memory.addVar(resultType, 'temp')
+                directory.addTemp(quadruples.temporalCounter(), resultType, adr)
+                # Create new quadruple with operation
+                quadruples.pushQuadruple("MINUS",
+                                         directory.getAddress(rightOperand, rightType),
+                                         "",
+                                         adr)
+                # Push temp to operands/type stacks
+                quadruples.pushOperandStack(quadruples.temporalCounter())
+                quadruples.pushTypeStack(resultType)
+                # Increase temporal index variable
+                quadruples.increaseTempCount()
+            else:
+                print("Error: Operand types not compatible")
+        return p
+
+    @_('')
     def binaryOp1(self, p):
         # If we're doing addition or subtraction
         if quadruples.topOperatorStack() == '+' or quadruples.topOperatorStack() == '-':
@@ -601,6 +632,15 @@ class EneParser(Parser):
     @_('factor binaryOp2 "/"')
     def divOp(self, p):
         quadruples.pushOperatorStack(p[2])
+        return p
+
+    @_('negOp unaryOp')
+    def factor(self, p):
+        return p
+
+    @_('"-" factor')
+    def negOp(self, p):
+        quadruples.pushOperatorStack(p[0])
         return p
 
     @_('functionCall')

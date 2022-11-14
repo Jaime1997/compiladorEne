@@ -39,7 +39,7 @@ class VirtualMachine(object):
         while self.pointer < eof:
             self.isJumping = False
             curQuad = self.quads[self.pointer]
-            #print(curQuad)
+            print(curQuad)
 
             if curQuad[0] == 'GOTO':
                 self.pointer = curQuad[3]
@@ -95,11 +95,14 @@ class VirtualMachine(object):
                 self.write(curQuad[3])
 
             elif curQuad[0] in ['MINUS']:
-                result = -self.getValue(curQuad[2])
+                leftOperand = "-1"
+                operator = "*"
+                rightOperand = self.getValue(curQuad[1])
+                result = eval(f'{leftOperand} {operator} {rightOperand}')
                 self.saveValue(curQuad[3], result)
 
             elif curQuad[0] in ['!']:
-                result = not self.getValue(curQuad[2])
+                result = not self.getValue(curQuad[1])
                 self.saveValue(curQuad[3], result)
 
             elif curQuad[0] in ['+','-','*','/']:
