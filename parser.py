@@ -85,19 +85,16 @@ class EneParser(Parser):
         return p
 
     # Variable declaration
-    @_('initScopeTable typeDeclaration')
+    @_('typeDeclaration')
     def var(self, p):
-        return p
-
-    # Checks if there's a table for the current scope
-    # If not, create one.
-    @_('')
-    def initScopeTable(self, p):
-        directory.checkTableCurrentScope()
         return p
 
     # Declare a single id
     @_('type addVarToContext ";"')
+    def typeDeclaration(self, p):
+        return p
+
+    @_('type addArray ";"')
     def typeDeclaration(self, p):
         return p
 
@@ -106,8 +103,16 @@ class EneParser(Parser):
     def typeDeclaration(self, p):
         return p
 
+    @_('type addArray "," multiVar')
+    def typeDeclaration(self, p):
+        return p
+
     # Single id of one type, begin declaring ids of another type
     @_('type addVarToContext ";" typeDeclaration')
+    def typeDeclaration(self, p):
+        return p
+
+    @_('type addArray ";" typeDeclaration')
     def typeDeclaration(self, p):
         return p
 
@@ -116,8 +121,16 @@ class EneParser(Parser):
     def multiVar(self, p):
         return p
 
+    @_('addArray ";"')
+    def multiVar(self, p):
+        return p
+
     # Same type declaration loop
     @_('addVarToContext "," multiVar')
+    def multiVar(self, p):
+        return p
+
+    @_('addArray "," multiVar')
     def multiVar(self, p):
         return p
 
@@ -127,10 +140,38 @@ class EneParser(Parser):
     def multiVar(self, p):
         return p
 
+    @_('addArray ";" typeDeclaration')
+    def multiVar(self, p):
+        return p
+
     @_('ID')
     def addVarToContext(self, p):
         directory.addVariableToContext(p[0],
                                        memory.addVar(directory.getCurrentType(), directory.getScope()))
+        return p
+
+    @_('addVarToContext addDimensions')
+    def addArray(self, p):
+        directory.initArray(p[0][1])
+        memory.addArray(directory.getCurrentType(), directory.getScope(), directory.getArraySize(p[0][1]))
+        return p
+
+    @_('"[" CTEINT "]"')
+    def addDimensions(self, p):
+        if int(p[1]) < 1:
+            print("Error: Dimensions must be 1 or higher.")
+            exit()
+        else:
+            directory.pushDimensionStack(int(p[1]))
+        return p
+
+    @_('"[" CTEINT "]" addDimensions')
+    def addDimensions(self, p):
+        if int(p[1]) < 1:
+            print("Error: Dimensions must be 1 or higher.")
+            exit()
+        else:
+            directory.pushDimensionStack(int(p[1]))
         return p
 
     @_('INT')
@@ -287,6 +328,75 @@ class EneParser(Parser):
                 "",directory.getAddressVar(p[0]))
         else:
             print("Type mismatch.")
+        return p
+
+    @_('arrayId arrayIndexes "=" expression ";"')
+    def assignation(self, p):
+
+        if directory.getArrayDimensions(directory.auxArrId) != len(directory.arrDimensions):
+            print("Error: incorrect indexing")
+            exit()
+
+        idxId = directory.getArrayIdxId()
+
+        expOperand = quadruples.popOperandStack()
+        expType = quadruples.popTypeStack()
+
+        if quadruples.verifyOperatorValidity('=',(expType,directory.auxArrType)):
+            quadruples.pushQuadruple(
+                '=',
+                directory.getAddress(expOperand,expType),
+                "",
+                idxId)
+        else:
+            print("Type mismatch.")
+            exit()
+
+        directory.auxArrId = ""
+        directory.auxArrType = ""
+        return p
+
+    @_('ID')
+    def arrayId(self, p):
+        if not directory.isIdArray(p[0]):
+            print("Error: variable " + p[0] + " is not dimensioned")
+            exit()
+
+        directory.setAuxArr(p[0], directory.getVariableType(p[0]))
+        return p
+
+    @_('"[" exp "]"')
+    def arrayIndexes(self, p):
+        print(quadruples.typeStack)
+        print(quadruples.operandStack)
+        indexType = quadruples.popTypeStack()
+        if indexType == 'int':
+            indexValue = quadruples.popOperandStack()
+            directory.pushDimensionStack(indexValue)
+            quadruples.pushQuadruple(
+                'VERIFY',
+                directory.getAddress(indexValue, indexType),
+                "0",
+                directory.getArrayUpperBound(directory.auxArrId, len(directory.arrDimensions)))
+        else:
+            print("Error: array indexes must be integers.")
+            exit()
+        return p
+
+    @_('"[" exp "]" arrayIndexes')
+    def arrayIndexes(self, p):
+        indexType = quadruples.popTypeStack()
+        if indexType == 'int':
+            indexValue = quadruples.popOperandStack()
+            directory.pushDimensionStack(indexValue)
+            quadruples.pushQuadruple(
+                'VERIFY',
+                directory.getAddress(indexValue, indexType),
+                "0",
+                directory.getArrayUpperBound(directory.auxArrId, len(directory.arrDimensions)))
+        else:
+            print("Error: array indexes must be integers.")
+            exit()
         return p
 
     @_('PRINT "(" printExpressions')
@@ -736,6 +846,25 @@ class EneParser(Parser):
         quadruples.pushTypeStack(directory.getVariableType(p[0]))
         return p
 
+    @_('arrayId arrayIndexes')
+    def varcte(self, p):
+        if directory.getArrayDimensions(directory.auxArrId) != len(directory.arrDimensions):
+            print("Error: incorrect indexing")
+            exit()
+
+        idxId = directory.getArrayIdxId()
+
+        adr = memory.addVar(directory.auxArrType, 'temp')
+        directory.addTemp(quadruples.temporalCounter(), directory.auxArrType, adr)
+        quadruples.pushQuadruple('=', idxId, "", adr)
+        quadruples.pushOperandStack(quadruples.temporalCounter())
+        quadruples.pushTypeStack(directory.auxArrType)
+        quadruples.increaseTempCount()
+
+        directory.auxArrId = ""
+        directory.auxArrType = ""
+        return p
+
     @_('CTEINT')
     def varcte(self, p):
         quadruples.pushOperandStack(p[0])
@@ -846,6 +975,7 @@ class EneParser(Parser):
 
     @_('FOR "(" type declareIdx "=" exp assignIdx ";" expression forCondition ";" step ")" block loopFor')
     def forStatement(self, p):
+        directory.removeVariableToContext(p[3][1])
         return p
 
     @_('ID')

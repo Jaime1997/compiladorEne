@@ -85,6 +85,48 @@ class VirtualMemory(object):
         else:
             return -1
 
+    def addArray(self, type, scope, size):
+        if scope == 'global':
+            if type == 'int':
+                self.intG += size
+            elif type == 'float':
+                self.floatG += size
+            elif type == 'char':
+                self.charG += size
+            elif type == 'string':
+                self.stringG += size
+
+        elif scope == 'local':
+            if type == 'int':
+                self.intL += size
+            elif type == 'float':
+                self.floatL += size
+            elif type == 'char':
+                self.charL += size
+            elif type == 'string':
+                self.stringL += size
+
+        elif scope == 'temp':
+            if type == 'int':
+                self.intT += size
+            elif type == 'float':
+                self.floatT += size
+            elif type == 'bool':
+                self.boolT += size
+
+        elif scope == 'const':
+            if type == 'int':
+                self.intC += size
+            elif type == 'float':
+                self.floatC += size
+            elif type == 'char':
+                self.charC += size
+            elif type == 'string':
+                self.stringC += size
+
+        else:
+            return -1
+
     # Resets local memory register
     def resetLocalMemory(self):
         self.intL = 12500

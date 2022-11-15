@@ -24,7 +24,10 @@ class FunctionDirectory(object):
         # Helps check argument/parameter number agreement
         self.funcC = -1
         self.argC = []
+        # Helps initialize dimensioned variables.
+        self.arrDimensions = []
         self.auxArrId = ""
+        self.auxArrType = ""
 
     def addProgram(self, id):
         self.programName = id
@@ -62,11 +65,6 @@ class FunctionDirectory(object):
     def eraseScope(self):
         self.directory[self.currentScope][1] = dict()
 
-    # Checks if a table exists for the current context.
-    def checkTableCurrentScope(self):
-        if not self.currentScope in self.directory:
-            self.directory[self.currentScope] = [[self.currentScopeReturn], dict()]
-            self.parameterTable[self.currentScope] = []
 
     def addVariableToContext(self, id, adr):
         if id in self.directory[self.currentScope][1]:
@@ -75,6 +73,13 @@ class FunctionDirectory(object):
         else:
             self.directory[self.currentScope][1][id] = [self.currentType, "value", adr, []]
             # Type, value, address, dimensions
+
+    def removeVariableToContext(self, id):
+        if id in self.directory[self.currentScope][1]:
+            del self.directory[self.currentScope][1][id]
+        else:
+            print("Error: variable doesn't exist.")
+            exit()
 
     def addFunction(self, id):
         # If already declared, error
@@ -144,6 +149,60 @@ class FunctionDirectory(object):
     def initArgumentCounter(self):
         self.argC.append(0)
 
+    def pushDimensionStack(self, dimension):
+        self.arrDimensions.append(dimension)
+
+    def popDimensionStack(self):
+        return self.arrDimensions.pop()
+
+    def initArray(self, id):
+        numDimensions = len(self.arrDimensions)
+        size = 1
+
+        # Init array
+        self.directory[self.currentScope][1][id][3] = [0, 1, []] # dim, r, [lim inf, lim sup, m/k]
+        self.directory[self.currentScope][1][id][3][0] = numDimensions # List number of dimensions
+
+        # Add table for each dimension
+        while self.arrDimensions:
+            upperLimit = self.arrDimensions.pop()
+            self.directory[self.currentScope][1][id][3][2].append([0, upperLimit - 1, size])
+            size *= upperLimit
+
+        self.directory[self.currentScope][1][id][3][1] = size
+
+    def getArrayIdxId(self):
+
+        i = 0
+        baseAdr = self.directory[self.currentScope][1][self.auxArrId][2]
+
+        while self.arrDimensions:
+            idx = self.arrDimensions.pop()
+            baseAdr += self.directory[self.currentScope][1][self.auxArrId][3][2][i][2] * int(idx)
+            i += 1
+
+        baseAdr += 1
+        return baseAdr
+
+    def getArraySize(self, id):
+        return self.directory[self.currentScope][1][id][3][1]
+
+    def getArrayDimensions(self, id):
+        return self.directory[self.currentScope][1][id][3][0]
+
+    def getArrayUpperBound(self, id, dimensionNum):
+        return self.directory[self.currentScope][1][id][3][2][dimensionNum-1][1]
+
+    def isIdArray(self, id):
+        if self.directory[self.currentScope][1][id][3]:
+            return True
+        else:
+            return False
+
+    def setAuxArr(self, id, type):
+        self.auxArrId = id
+        self.auxArrType = type
+
     def increaseFunctionCallCounter(self):
         self.funcC = self.funcC + 1
 
@@ -203,7 +262,8 @@ class FunctionDirectory(object):
         elif id in self.directory["global"][1]:
             return self.directory["global"][1][id][0]
         else:
-            print("Error: variable type not found.")
+            print("Error: variable doesn't exist")
+            exit()
 
     def getFunctionType(self, id):
         # Checks if it exists in the current scope

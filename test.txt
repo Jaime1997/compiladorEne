@@ -1,0 +1,9 @@
+program test;
+
+main(){
+    int i;
+    int array[5][4][3];
+    array[0][1][2] = 2*2;
+    i = array[0][1][2]-2;
+    print(i, array[0][1][2]);
+}

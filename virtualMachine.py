@@ -39,7 +39,7 @@ class VirtualMachine(object):
         while self.pointer < eof:
             self.isJumping = False
             curQuad = self.quads[self.pointer]
-            print(curQuad)
+            #print(curQuad)
 
             if curQuad[0] == 'GOTO':
                 self.pointer = curQuad[3]
@@ -93,6 +93,15 @@ class VirtualMachine(object):
 
             elif curQuad[0] == 'WRITE':
                 self.write(curQuad[3])
+
+            elif curQuad[0] == 'VERIFY':
+                idxValue = self.getValue(curQuad[1])
+                lowerBound = curQuad[2]
+                upperBound = curQuad[3]
+                result = eval(f'{lowerBound} {"<="} {idxValue} {"<="} {upperBound}')
+                if not result:
+                    print("Error: out of bounds access")
+                    exit()
 
             elif curQuad[0] in ['MINUS']:
                 leftOperand = "-1"
@@ -371,3 +380,19 @@ class VirtualMachine(object):
         except:
             print('Error: input/variable type mismatch')
             exit()
+
+    def initArray(self, id):
+        numDimensions = len(self.arrDimensions)
+        size = 1
+
+        # Init array
+        self.directory[self.currentScope][1][id][3] = [0, 1, []] # dim, r, [lim inf, lim sup, m/k]
+        self.directory[self.currentScope][1][id][3][0] = numDimensions # List number of dimensions
+
+        # Add table for each dimension
+        while self.arrDimensions:
+            upperLimit = self.arrDimensions.pop()
+            self.directory[self.currentScope][1][id][3][2].append([0, upperLimit - 1, size])
+            size *= upperLimit
+
+        self.directory[self.currentScope][1][id][3][1] = size
