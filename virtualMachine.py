@@ -380,19 +380,3 @@ class VirtualMachine(object):
         except:
             print('Error: input/variable type mismatch')
             exit()
-
-    def initArray(self, id):
-        numDimensions = len(self.arrDimensions)
-        size = 1
-
-        # Init array
-        self.directory[self.currentScope][1][id][3] = [0, 1, []] # dim, r, [lim inf, lim sup, m/k]
-        self.directory[self.currentScope][1][id][3][0] = numDimensions # List number of dimensions
-
-        # Add table for each dimension
-        while self.arrDimensions:
-            upperLimit = self.arrDimensions.pop()
-            self.directory[self.currentScope][1][id][3][2].append([0, upperLimit - 1, size])
-            size *= upperLimit
-
-        self.directory[self.currentScope][1][id][3][1] = size
