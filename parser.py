@@ -337,7 +337,6 @@ class EneParser(Parser):
             print("Error: incorrect indexing")
             exit()
 
-        #idxId = directory.getArrayIdxId()
         baseAdr = directory.getArrayBaseDir()
 
         expOperand = quadruples.popOperandStack()
@@ -852,7 +851,6 @@ class EneParser(Parser):
             print("Error: incorrect indexing")
             exit()
 
-        #idxId = directory.getArrayIdxId()
         baseAdr = directory.getArrayBaseDir()
 
         adr = memory.addVar(directory.auxArrType, 'temp')
@@ -1039,11 +1037,11 @@ class EneParser(Parser):
             adrBool = memory.addVar(stepType, 'temp')
             directory.addTemp(quadruples.temporalCounter(), stepType, adrBool)
             quadruples.increaseTempCount()
-            quadruples.pushQuadruple('+', vControl, directory.getAddress(stepOperand, stepType), adrBool)
             quadruples.pushQuadruple('=', adrBool, '', vControl)
             quadruples.pushQuadruple('=', adrBool, '',
                                      directory.getAddress(quadruples.popOperandStack(),
                                                           quadruples.popTypeStack()))
+            quadruples.pushQuadruple('+', vControl, directory.getAddress(stepOperand, stepType), adrBool)
         else:
             print("Error: for step value must be int or float")
             exit()

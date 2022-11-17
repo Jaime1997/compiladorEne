@@ -13,9 +13,9 @@ func int fib(int j)
 }
 
 main(){
-    int i, k;
+    int i, result;
     print("Numero de niveles de fibonacci");
     write(i);
-    k = fib(i);
-    print(k);
+    result = fib(i);
+    print(result);
 }

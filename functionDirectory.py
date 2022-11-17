@@ -188,19 +188,6 @@ class FunctionDirectory(object):
     def getArrayBaseDir(self):
         return self.directory[self.currentScope][1][self.auxArrId][2]
 
-    def getArrayIdxId(self):
-
-        i = 0
-        baseAdr = self.directory[self.currentScope][1][self.auxArrId][2]
-
-        while self.arrDimensions:
-            idx = self.arrDimensions.pop()
-            baseAdr += self.directory[self.currentScope][1][self.auxArrId][3][2][i][2] * int(idx)
-            i += 1
-
-        baseAdr += 1
-        return baseAdr
-
     def getArraySize(self, id):
         return self.directory[self.currentScope][1][id][3][1]
 

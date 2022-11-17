@@ -1,5 +1,10 @@
 program simple;
 
+int gInt;
+float gFloat;
+char gChar;
+string gString;
+
 func int sub(int x, int y){
     int result;
     result = x - y;
@@ -10,23 +15,59 @@ func int add(int x, int y){
     return x + y;
 }
 
-main(){
-    int a, b, c, d, e, f;
-    int negA;
+func float div(float x, float y){
+    return x / y;
+}
 
+func float mult(float x, float y){
+    gString = "Let's call div for the sake of it.";
+    print(gString, div(x,y), div(y,x));
+    return x * y;
+}
+
+main(){
+    int a, b, c, d;
     a = 5;
     b = 4;
 
-    c = 2*(add(a,b)+2)+2;
+    gInt = 2*(a+b)+2;
 
-    d = add(b,a);
-    e = sub(c,4);
+    c = add(a,b);
+    d = sub(gInt,a);
 
-    print(a,b,c,d,e);
+    gString = "Let's see the results of our integer operations";
 
-    f = add(sub(5,2),5*2);
-    print("f es:",f);
+    print(gString,a,b,c,d,gInt);
 
-    negA = -5;
-    print((negA-2)*-2);
+    gFloat = mult(2.5,2.0);
+    print("Here's our multiplication result",gFloat);
+
+    print("How about we try some loops and logical statements?");
+
+    while(a >= b-1){
+        if (a > b) {
+            print("a is bigger than b");
+        } else if (a == b) {
+            print("a and b are equal");
+        } else {
+            print("b is bigger than a");
+        }
+        b = b + 1;
+    }
+
+    print("Iterating over an array is a must have in any programming language");
+    int array[10];
+    for(int i = 0; i < 9; 1){
+        array[i] = i;
+        print(array[i]);
+    }
+
+    print("Let's declare more complex dimensioned variables");
+    int cube[3][2][3];
+    float matrix[2][2];
+
+    matrix[1][1] = 2.2*2.0;
+
+    cube[0][1][2] = gInt-2;
+    print(cube[1-1][0+1][add(1,1)], matrix[1][1]);
 }
