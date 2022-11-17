@@ -4,6 +4,12 @@ func int add(int x, int y){
     return x + y;
 }
 
+func int makeArray(){
+    int array[3][3][3];
+    print(add(2,2));
+    return 1;
+}
+
 main(){
     int i, idx;
     idx = 1+1;
@@ -13,4 +19,5 @@ main(){
     i = array[0][1][idx]-2;
 
     print(i, array[0][1][add(1,1)]);
+    print(makeArray());
 }

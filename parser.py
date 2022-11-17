@@ -774,7 +774,7 @@ class EneParser(Parser):
     def factor(self, p):
         return p
 
-    @_('functionId "(" ")" validateParamSize')
+    @_('functionId "(" ")" noArgs validateParamSize')
     def functionCall(self, p):
         return p
 
@@ -820,6 +820,11 @@ class EneParser(Parser):
                                      "",
                                      "arg" + str(directory.getArgumentCounter()))
         directory.increaseArgumentCounter()
+        return p
+
+    @_('')
+    def noArgs(self, p):
+        quadruples.pushQuadruple("NOARGS","","","")
         return p
 
     @_('')

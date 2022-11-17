@@ -41,6 +41,7 @@ class VirtualMachine(object):
             self.isJumping = False
             curQuad = self.quads[self.pointer]
             #print(curQuad)
+            print(self.intLpointer)
 
             if curQuad[0] == 'GOTO':
                 self.pointer = curQuad[3]
@@ -70,6 +71,9 @@ class VirtualMachine(object):
                 if curQuad[3] == 'arg0':
                     self.arguments[self.recursionCounter] = []
                 self.arguments[self.recursionCounter].append(self.getValue(curQuad[1]))
+
+            elif curQuad[0] == 'NOARGS':
+                self.arguments[self.recursionCounter] = []
 
             elif curQuad[0] == 'ENDFunc':
                 self.pointer = self.pointerBreadcrumb.pop()
@@ -362,6 +366,7 @@ class VirtualMachine(object):
         self.dataframeLpointer += self.localMemSize[self.recursionCounter][4]
 
     def saveArgumentsInLocalMemory(self):
+        print(self.arguments[self.recursionCounter])
         i = 0
         for j in self.arguments[self.recursionCounter]:
             if self.params[self.currentScope][i] == 'int':
