@@ -104,19 +104,33 @@ class FunctionDirectory(object):
         string = 0
         dataframe = 0
         for i in self.directory[self.currentScope][1]:
-            if self.directory[self.currentScope][1][i][0] == 'int':
-                int += 1
-            elif self.directory[self.currentScope][1][i][0] == 'float':
-                float += 1
-            elif self.directory[self.currentScope][1][i][0] == 'char':
-                char += 1
-            elif self.directory[self.currentScope][1][i][0] == 'string':
-                string += 1
-            elif self.directory[self.currentScope][1][i][0] == 'dataframe':
-                dataframe += 1
+            # If it's not an array
+            if not self.directory[self.currentScope][1][i][3]:
+                if self.directory[self.currentScope][1][i][0] == 'int':
+                    int += 1
+                elif self.directory[self.currentScope][1][i][0] == 'float':
+                    float += 1
+                elif self.directory[self.currentScope][1][i][0] == 'char':
+                    char += 1
+                elif self.directory[self.currentScope][1][i][0] == 'string':
+                    string += 1
+                elif self.directory[self.currentScope][1][i][0] == 'dataframe':
+                    dataframe += 1
+            # If it's an array
+            else:
+                if self.directory[self.currentScope][1][i][0] == 'int':
+                    int += self.directory[self.currentScope][1][i][3][1]
+                elif self.directory[self.currentScope][1][i][0] == 'float':
+                    float += self.directory[self.currentScope][1][i][3][1]
+                elif self.directory[self.currentScope][1][i][0] == 'char':
+                    char += self.directory[self.currentScope][1][i][3][1]
+                elif self.directory[self.currentScope][1][i][0] == 'string':
+                    string += self.directory[self.currentScope][1][i][3][1]
+                elif self.directory[self.currentScope][1][i][0] == 'dataframe':
+                    dataframe += self.directory[self.currentScope][1][i][3][1]
 
         if len(self.directory[self.currentScope][0]) > 3:
-            print('error: el indice del arreglo esta mal')
+            print('Error: data structure badly formatted')
         else:
             self.directory[self.currentScope][0].append([int, float, char, string, dataframe])
 
@@ -170,6 +184,9 @@ class FunctionDirectory(object):
             size *= upperLimit
 
         self.directory[self.currentScope][1][id][3][1] = size
+
+    def getArrayBaseDir(self):
+        return self.directory[self.currentScope][1][self.auxArrId][2]
 
     def getArrayIdxId(self):
 
@@ -397,7 +414,7 @@ class FunctionDirectory(object):
     def exportParams(self):
         return self.parameterTable
 
-    def printDirectory(self):  # imprime funDir
+    def printDirectory(self):
 
         for key, value in self.directory.items():
             print("------------------------")

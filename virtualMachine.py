@@ -32,6 +32,7 @@ class VirtualMachine(object):
         self.localMem = [[None] * 2500, [None] * 2500, [None] * 2500, [None] * 2500, [None] * 2500]
         self.localMemSize = []
         self.arguments = [[]]
+        self.arrDimension = []
 
     def runProgram(self):
         eof = len(self.quads)
@@ -102,6 +103,8 @@ class VirtualMachine(object):
                 if not result:
                     print("Error: out of bounds access")
                     exit()
+                else:
+                    self.arrDimension.append(idxValue)
 
             elif curQuad[0] in ['MINUS']:
                 leftOperand = "-1"
@@ -130,6 +133,30 @@ class VirtualMachine(object):
                 #print(leftOperand,operator,rightOperand)
                 result = eval(f'{leftOperand} {operator} {rightOperand}')
                 self.saveValue(curQuad[3], result)
+
+            elif curQuad[0] == 'ARR=':
+                dimensions = len(self.arrDimension)
+                idxOffset = 1
+                i = 0
+
+                while i < dimensions:
+                    idxOffset += int(self.arrDimension.pop()) * self.directory[self.currentScope][1][curQuad[3]][3][2][i][2]
+                    i += 1
+
+                idxOffset += 1
+                self.saveValue(curQuad[3] + idxOffset, self.getValue(curQuad[1]))
+
+            elif curQuad[0] == 'ARRIDX':
+                dimensions = len(self.arrDimension)
+                idxOffset = 1
+                i = 0
+
+                while i < dimensions:
+                    idxOffset += int(self.arrDimension.pop()) * self.directory[self.currentScope][1][curQuad[1]][3][2][i][2]
+                    i += 1
+
+                idxOffset += 1
+                self.saveValue(curQuad[3], self.getValue(curQuad[1] + idxOffset))
 
             elif curQuad[0] == '=':
                 self.saveValue(curQuad[3], self.getValue(curQuad[1]))

@@ -337,21 +337,23 @@ class EneParser(Parser):
             print("Error: incorrect indexing")
             exit()
 
-        idxId = directory.getArrayIdxId()
+        #idxId = directory.getArrayIdxId()
+        baseAdr = directory.getArrayBaseDir()
 
         expOperand = quadruples.popOperandStack()
         expType = quadruples.popTypeStack()
 
         if quadruples.verifyOperatorValidity('=',(expType,directory.auxArrType)):
             quadruples.pushQuadruple(
-                '=',
+                'ARR=',
                 directory.getAddress(expOperand,expType),
                 "",
-                idxId)
+                baseAdr)
         else:
             print("Type mismatch.")
             exit()
 
+        directory.arrDimensions = []
         directory.auxArrId = ""
         directory.auxArrType = ""
         return p
@@ -367,8 +369,6 @@ class EneParser(Parser):
 
     @_('"[" exp "]"')
     def arrayIndexes(self, p):
-        print(quadruples.typeStack)
-        print(quadruples.operandStack)
         indexType = quadruples.popTypeStack()
         if indexType == 'int':
             indexValue = quadruples.popOperandStack()
@@ -852,15 +852,17 @@ class EneParser(Parser):
             print("Error: incorrect indexing")
             exit()
 
-        idxId = directory.getArrayIdxId()
+        #idxId = directory.getArrayIdxId()
+        baseAdr = directory.getArrayBaseDir()
 
         adr = memory.addVar(directory.auxArrType, 'temp')
         directory.addTemp(quadruples.temporalCounter(), directory.auxArrType, adr)
-        quadruples.pushQuadruple('=', idxId, "", adr)
+        quadruples.pushQuadruple('ARRIDX', baseAdr, "", adr)
         quadruples.pushOperandStack(quadruples.temporalCounter())
         quadruples.pushTypeStack(directory.auxArrType)
         quadruples.increaseTempCount()
 
+        directory.arrDimensions = []
         directory.auxArrId = ""
         directory.auxArrType = ""
         return p
