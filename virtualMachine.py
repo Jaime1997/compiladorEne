@@ -33,6 +33,7 @@ class VirtualMachine(object):
         self.localMemSize = []
         self.arguments = [[]]
         self.arrDimension = []
+        self.arrCalls = []
 
     def runProgram(self):
         eof = len(self.quads)
@@ -40,8 +41,7 @@ class VirtualMachine(object):
         while self.pointer < eof:
             self.isJumping = False
             curQuad = self.quads[self.pointer]
-            #print(curQuad)
-            print(self.intLpointer)
+            print(curQuad)
 
             if curQuad[0] == 'GOTO':
                 self.pointer = curQuad[3]
@@ -99,17 +99,6 @@ class VirtualMachine(object):
             elif curQuad[0] == 'WRITE':
                 self.write(curQuad[3])
 
-            elif curQuad[0] == 'VERIFY':
-                idxValue = self.getValue(curQuad[1])
-                lowerBound = curQuad[2]
-                upperBound = curQuad[3]
-                result = eval(f'{lowerBound} {"<="} {idxValue} {"<="} {upperBound}')
-                if not result:
-                    print("Error: out of bounds access")
-                    exit()
-                else:
-                    self.arrDimension.append(idxValue)
-
             elif curQuad[0] in ['MINUS']:
                 leftOperand = "-1"
                 operator = "*"
@@ -138,25 +127,42 @@ class VirtualMachine(object):
                 result = eval(f'{leftOperand} {operator} {rightOperand}')
                 self.saveValue(curQuad[3], result)
 
+            elif curQuad[0] == 'VERIFY':
+                idxValue = self.getValue(curQuad[1])
+                lowerBound = curQuad[2]
+                upperBound = curQuad[3]
+                result = eval(f'{lowerBound} {"<="} {idxValue} {"<="} {upperBound}')
+                if not result:
+                    print("Error: out of bounds access")
+                    exit()
+                else:
+                    self.arrDimension.append(idxValue)
+
+            elif curQuad[0] == 'STOREIDX':
+                self.arrCalls.append(self.arrDimension)
+                self.arrDimension = []
+
             elif curQuad[0] == 'ARR=':
-                dimensions = len(self.arrDimension)
+                indexes = self.arrCalls.pop()
+                dimensions = len(indexes)
                 idxOffset = 1
                 i = 0
 
                 while i < dimensions:
-                    idxOffset += int(self.arrDimension.pop()) * self.directory[self.currentScope][1][curQuad[3]][3][2][i][2]
+                    idxOffset += int(indexes.pop()) * self.directory[self.currentScope][1][curQuad[3]][3][2][i][2]
                     i += 1
 
                 idxOffset += 1
                 self.saveValue(curQuad[3] + idxOffset, self.getValue(curQuad[1]))
 
             elif curQuad[0] == 'ARRIDX':
-                dimensions = len(self.arrDimension)
+                indexes = self.arrCalls.pop()
+                dimensions = len(indexes)
                 idxOffset = 1
                 i = 0
 
                 while i < dimensions:
-                    idxOffset += int(self.arrDimension.pop()) * self.directory[self.currentScope][1][curQuad[1]][3][2][i][2]
+                    idxOffset += int(indexes.pop()) * self.directory[self.currentScope][1][curQuad[1]][3][2][i][2]
                     i += 1
 
                 idxOffset += 1
@@ -366,7 +372,6 @@ class VirtualMachine(object):
         self.dataframeLpointer += self.localMemSize[self.recursionCounter][4]
 
     def saveArgumentsInLocalMemory(self):
-        print(self.arguments[self.recursionCounter])
         i = 0
         for j in self.arguments[self.recursionCounter]:
             if self.params[self.currentScope][i] == 'int':

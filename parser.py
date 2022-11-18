@@ -330,10 +330,10 @@ class EneParser(Parser):
             print("Type mismatch.")
         return p
 
-    @_('arrayId arrayIndexes "=" expression ";"')
+    @_('arrayId arrayIndexes saveArrIdx "=" expression ";"')
     def assignation(self, p):
 
-        if directory.getArrayDimensions(directory.auxArrId) != len(directory.arrDimensions):
+        if directory.getArrayDimensions(directory.auxArrId[-1]) != len(directory.arrIndexes[-1]):
             print("Error: incorrect indexing")
             exit()
 
@@ -342,7 +342,7 @@ class EneParser(Parser):
         expOperand = quadruples.popOperandStack()
         expType = quadruples.popTypeStack()
 
-        if quadruples.verifyOperatorValidity('=',(expType,directory.auxArrType)):
+        if quadruples.verifyOperatorValidity('=',(expType,directory.auxArrType[-1])):
             quadruples.pushQuadruple(
                 'ARR=',
                 directory.getAddress(expOperand,expType),
@@ -352,9 +352,9 @@ class EneParser(Parser):
             print("Type mismatch.")
             exit()
 
-        directory.arrDimensions = []
-        directory.auxArrId = ""
-        directory.auxArrType = ""
+        directory.arrIndexes.pop()
+        directory.auxArrId.pop()
+        directory.auxArrType.pop()
         return p
 
     @_('ID')
@@ -366,17 +366,22 @@ class EneParser(Parser):
         directory.setAuxArr(p[0], directory.getVariableType(p[0]))
         return p
 
+    @_('')
+    def saveArrIdx(self, p):
+        quadruples.pushQuadruple('STOREIDX',"","","")
+        return p
+
     @_('"[" exp "]"')
     def arrayIndexes(self, p):
         indexType = quadruples.popTypeStack()
         if indexType == 'int':
             indexValue = quadruples.popOperandStack()
-            directory.pushDimensionStack(indexValue)
+            directory.pushIndexStack(indexValue)
             quadruples.pushQuadruple(
                 'VERIFY',
                 directory.getAddress(indexValue, indexType),
                 "0",
-                directory.getArrayUpperBound(directory.auxArrId, len(directory.arrDimensions)))
+                directory.getArrayUpperBound(directory.auxArrId[-1], len(directory.arrIndexes[-1])))
         else:
             print("Error: array indexes must be integers.")
             exit()
@@ -387,12 +392,12 @@ class EneParser(Parser):
         indexType = quadruples.popTypeStack()
         if indexType == 'int':
             indexValue = quadruples.popOperandStack()
-            directory.pushDimensionStack(indexValue)
+            directory.pushIndexStack(indexValue)
             quadruples.pushQuadruple(
                 'VERIFY',
                 directory.getAddress(indexValue, indexType),
                 "0",
-                directory.getArrayUpperBound(directory.auxArrId, len(directory.arrDimensions)))
+                directory.getArrayUpperBound(directory.auxArrId[-1], len(directory.arrIndexes[-1])))
         else:
             print("Error: array indexes must be integers.")
             exit()
@@ -850,24 +855,24 @@ class EneParser(Parser):
         quadruples.pushTypeStack(directory.getVariableType(p[0]))
         return p
 
-    @_('arrayId arrayIndexes')
+    @_('arrayId pushFakeBottom arrayIndexes popFakeBottom saveArrIdx')
     def varcte(self, p):
-        if directory.getArrayDimensions(directory.auxArrId) != len(directory.arrDimensions):
+        if directory.getArrayDimensions(directory.auxArrId[-1]) != len(directory.arrIndexes[-1]):
             print("Error: incorrect indexing")
             exit()
 
         baseAdr = directory.getArrayBaseDir()
 
-        adr = memory.addVar(directory.auxArrType, 'temp')
-        directory.addTemp(quadruples.temporalCounter(), directory.auxArrType, adr)
+        adr = memory.addVar(directory.auxArrType[-1], 'temp')
+        directory.addTemp(quadruples.temporalCounter(), directory.auxArrType[-1], adr)
         quadruples.pushQuadruple('ARRIDX', baseAdr, "", adr)
         quadruples.pushOperandStack(quadruples.temporalCounter())
-        quadruples.pushTypeStack(directory.auxArrType)
+        quadruples.pushTypeStack(directory.auxArrType[-1])
         quadruples.increaseTempCount()
 
-        directory.arrDimensions = []
-        directory.auxArrId = ""
-        directory.auxArrType = ""
+        directory.arrIndexes.pop()
+        directory.auxArrId.pop()
+        directory.auxArrType.pop()
         return p
 
     @_('CTEINT')

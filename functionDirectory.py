@@ -26,8 +26,9 @@ class FunctionDirectory(object):
         self.argC = []
         # Helps initialize dimensioned variables.
         self.arrDimensions = []
-        self.auxArrId = ""
-        self.auxArrType = ""
+        self.arrIndexes = []
+        self.auxArrId = []
+        self.auxArrType = []
 
     def addProgram(self, id):
         self.programName = id
@@ -166,8 +167,8 @@ class FunctionDirectory(object):
     def pushDimensionStack(self, dimension):
         self.arrDimensions.append(dimension)
 
-    def popDimensionStack(self):
-        return self.arrDimensions.pop()
+    def pushIndexStack(self, index):
+        self.arrIndexes[len(self.auxArrId)-1].append(index)
 
     def initArray(self, id):
         numDimensions = len(self.arrDimensions)
@@ -186,7 +187,7 @@ class FunctionDirectory(object):
         self.directory[self.currentScope][1][id][3][1] = size
 
     def getArrayBaseDir(self):
-        return self.directory[self.currentScope][1][self.auxArrId][2]
+        return self.directory[self.currentScope][1][self.auxArrId[-1]][2]
 
     def getArraySize(self, id):
         return self.directory[self.currentScope][1][id][3][1]
@@ -204,8 +205,9 @@ class FunctionDirectory(object):
             return False
 
     def setAuxArr(self, id, type):
-        self.auxArrId = id
-        self.auxArrType = type
+        self.auxArrId.append(id)
+        self.auxArrType.append(type)
+        self.arrIndexes.append([])
 
     def increaseFunctionCallCounter(self):
         self.funcC = self.funcC + 1

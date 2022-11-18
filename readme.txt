@@ -21,7 +21,4 @@ La maquina virtual hace un manejo correcto de memoria local, calcualando el tama
 llamadas a funciones y liberando memoria una vez que se sale de una de estas.
 
 Falta:
-Adaptar la administracion de memoria para que tambien funcione con variables temporales.
-(Las estoy cargando en una tabla separada)
-Que los arreglos puedan aceptar expresiones como indice.
-La funcionalidad particular del proyecto. (Probablemente orientacion a objetos)
+La funcionalidad particular del proyecto.
