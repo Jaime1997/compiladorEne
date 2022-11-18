@@ -194,6 +194,11 @@ class EneParser(Parser):
         directory.setType("string")
         return p
 
+    @_('DATAFRAME')
+    def type(self, p):
+        directory.setType("dataframe")
+        return p
+
     # Optionally declare many functions
     @_('functions declareFunctions')
     def declareFunctions(self, p):
@@ -303,6 +308,10 @@ class EneParser(Parser):
         return p
 
     @_('writeStatement')
+    def statement(self, p):
+        return p
+
+    @_('loadStatement')
     def statement(self, p):
         return p
 
@@ -440,6 +449,14 @@ class EneParser(Parser):
     def inputId(self, p):
         if directory.variableExists(p[0]):
             quadruples.pushQuadruple('WRITE', "", "", directory.getAddressVar(p[0]))
+        return p
+
+    @_('PRINT "(" printExpressions')
+    def printStatement(self, p):
+        return p
+
+    @_('LOAD "(" ID "," CTESTRING "," maxVars "," maxLines ")" ')
+    def loadStatement(self, p):
         return p
 
     @_('RETURN expression ";"')

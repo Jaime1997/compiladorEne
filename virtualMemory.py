@@ -42,6 +42,9 @@ class VirtualMemory(object):
             elif type == 'string':
                 self.stringG += 1
                 return self.stringG - 1
+            elif type == 'dataframe':
+                self.dataframeG += 1
+                return self.dataframeG - 1
 
         elif scope == 'local':
             if type == 'int':
@@ -56,6 +59,9 @@ class VirtualMemory(object):
             elif type == 'string':
                 self.stringL += 1
                 return self.stringL - 1
+            elif type == 'dataframe':
+                self.dataframeL += 1
+                return self.dataframeL - 1
 
         elif scope == 'temp':
             if type == 'int':

@@ -3,9 +3,9 @@ from sly import Lexer
 class EneLexer(Lexer):
 
     # Keywords
-    tokens = {PROGRAM, MAIN, FUNC, ID, INT, FLOAT, CHAR, STRING,
-              CTEINT, CTEFLOAT, CTECHAR, CTESTRING, IF, ELSE, AND,
-              OR, PRINT, WRITE, WHILE, DO, FOR, RETURN}
+    tokens = {PROGRAM, MAIN, FUNC, ID, INT, FLOAT, CHAR, STRING, DATAFRAME,
+              CTEINT, CTEFLOAT, CTECHAR, CTESTRING, IF, ELSE, AND, OR, PRINT,
+              WRITE, WHILE, DO, FOR, RETURN, LOAD}
 
     # Ignore whitespace
     ignore = '\t'
@@ -21,6 +21,7 @@ class EneLexer(Lexer):
     FLOAT = r'float'
     CHAR = r'char'
     STRING = r'string'
+    DATAFRAME = r'dataframe'
     IF = r'if'
     ELSE = r'else'
     AND = r'and'
@@ -31,6 +32,7 @@ class EneLexer(Lexer):
     DO = r'do'
     FOR = r'for'
     RETURN = r'return'
+    LOAD = r'load'
 
     # Skip whitespace
     @_(r'\n')
