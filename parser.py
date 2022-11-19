@@ -451,12 +451,16 @@ class EneParser(Parser):
             quadruples.pushQuadruple('WRITE', "", "", directory.getAddressVar(p[0]))
         return p
 
-    @_('PRINT "(" printExpressions')
-    def printStatement(self, p):
-        return p
-
-    @_('LOAD "(" ID "," CTESTRING "," maxVars "," maxLines ")" ')
+    @_('LOAD "(" ID "," CTESTRING "," CTEINT "," CTEINT ")" ";"')
     def loadStatement(self, p):
+        if directory.getVariableType(p[2]) != 'dataframe':
+            print("Error: files must be loaded onto a dataframe type variable")
+            exit()
+
+        quadruples.pushQuadruple('LOAD', p[4].replace('"', ''), "", directory.getAddressVar(p[2]))
+        quadruples.pushQuadruple('READF', p[6], p[8], directory.getAddressVar(p[2]))
+        size = int(p[6]) * int(p[8])
+        memory.addArray("dataframe", directory.getScope(), size)
         return p
 
     @_('RETURN expression ";"')

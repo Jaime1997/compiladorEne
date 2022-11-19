@@ -1,7 +1,7 @@
 class VirtualMachine(object):
 
     def __init__(self, functionDirectoryTable, constantsTable,
-                 temporalTable, parametersTable, quadruplesTable,):
+                 temporalTable, parametersTable, quadruplesTable, ):
         self.pointer = 0
         self.pointerBreadcrumb = []
         self.currentScope = "main"
@@ -110,20 +110,20 @@ class VirtualMachine(object):
                 result = not self.getValue(curQuad[1])
                 self.saveValue(curQuad[3], result)
 
-            elif curQuad[0] in ['+','-','*','/']:
+            elif curQuad[0] in ['+', '-', '*', '/']:
                 leftOperand = self.getValue(curQuad[1])
                 rightOperand = self.getValue(curQuad[2])
                 operator = curQuad[0]
-                #print(leftOperand,operator,rightOperand)
+                # print(leftOperand,operator,rightOperand)
                 result = eval(f'{leftOperand} {operator} {rightOperand}')
-                #print(result)
+                # print(result)
                 self.saveValue(curQuad[3], result)
 
             elif curQuad[0] in ['<', '>', '<=', '>=', '==', "!=", "and", "or"]:
                 leftOperand = self.getValue(curQuad[1])
                 rightOperand = self.getValue(curQuad[2])
                 operator = curQuad[0]
-                #print(leftOperand,operator,rightOperand)
+                # print(leftOperand,operator,rightOperand)
                 result = eval(f'{leftOperand} {operator} {rightOperand}')
                 self.saveValue(curQuad[3], result)
 
@@ -170,6 +170,42 @@ class VirtualMachine(object):
 
             elif curQuad[0] == '=':
                 self.saveValue(curQuad[3], self.getValue(curQuad[1]))
+
+            elif curQuad[0] == 'LOAD':
+                try:
+                    f = open(curQuad[1])
+                except:
+                    print("Error: could not open file")
+                    exit()
+
+                self.pointer += 1
+                curQuad = self.quads[self.pointer]
+
+                if curQuad[0] != 'READF':
+                    print("Error: compiler error, unable to load file data")
+                    exit()
+
+                i = 0
+                j = 0
+                maxVars = int(curQuad[1])
+                maxLines = int(curQuad[2])
+                baseDir = int(curQuad[3]) + 1
+                # Skip var names
+                f.readline()
+                try:
+                    while i < maxLines:
+                        line = f.readline()
+                        currentline = line.split(",")
+                        currentline.pop()
+                        while j < maxVars:
+                            self.saveValue(baseDir, currentline[j])
+                            baseDir += 1
+                            j += 1
+                        j = 0
+                        i += 1
+                except:
+                    print("Error: variables/lines in file are less than those requested")
+                    exit()
 
             if not self.isJumping:
                 self.pointer += 1

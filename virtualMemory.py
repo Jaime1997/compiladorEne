@@ -101,6 +101,8 @@ class VirtualMemory(object):
                 self.charG += size
             elif type == 'string':
                 self.stringG += size
+            elif type == 'dataframe':
+                self.dataframeG += size
 
         elif scope == 'local':
             if type == 'int':
@@ -111,6 +113,8 @@ class VirtualMemory(object):
                 self.charL += size
             elif type == 'string':
                 self.stringL += size
+            elif type == 'dataframe':
+                self.dataframeL += size
 
         elif scope == 'temp':
             if type == 'int':
