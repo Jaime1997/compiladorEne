@@ -315,6 +315,10 @@ class EneParser(Parser):
     def statement(self, p):
         return p
 
+    @_('medianCalc')
+    def statement(self, p):
+        return p
+
     @_('returnStatement')
     def statement(self, p):
         return p
@@ -457,10 +461,30 @@ class EneParser(Parser):
             print("Error: files must be loaded onto a dataframe type variable")
             exit()
 
+        maxVars = int(p[6])
+        maxLines = int(p[8])
+
+        if maxVars < 1 or maxLines < 1:
+            print("Error: maxlines/maxvars can not be less than 1")
+            exit()
+
         quadruples.pushQuadruple('LOAD', p[4].replace('"', ''), "", directory.getAddressVar(p[2]))
-        quadruples.pushQuadruple('READF', p[6], p[8], directory.getAddressVar(p[2]))
-        size = int(p[6]) * int(p[8])
+        quadruples.pushQuadruple('READF', maxVars, maxLines, directory.getAddressVar(p[2]))
+        size = (maxVars+1) * maxLines
+        directory.initDataframe(p[2],maxVars,maxLines)
         memory.addArray("dataframe", directory.getScope(), size)
+        return p
+
+    @_('MEDIAN "(" ID ")" ";"')
+    def medianCalc(self, p):
+        if directory.getVariableType(p[2]) != 'dataframe':
+            print("Error: statistical analysis can only be done on a dataframe variable")
+            exit()
+
+        quadruples.pushQuadruple('MEDIAN',
+                                 directory.getDataframeLimits(p[2]),
+                                 "",
+                                 directory.getAddressVar(p[2]))
         return p
 
     @_('RETURN expression ";"')

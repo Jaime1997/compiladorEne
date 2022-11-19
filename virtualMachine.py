@@ -187,13 +187,11 @@ class VirtualMachine(object):
 
                 i = 0
                 j = 0
-                maxVars = int(curQuad[1])
-                maxLines = int(curQuad[2])
+                maxVars = curQuad[1]
+                maxLines = curQuad[2]
                 baseDir = int(curQuad[3]) + 1
-                # Skip var names
-                f.readline()
                 try:
-                    while i < maxLines:
+                    while i <= maxLines:
                         line = f.readline()
                         currentline = line.split(",")
                         currentline.pop()
@@ -207,8 +205,42 @@ class VirtualMachine(object):
                     print("Error: variables/lines in file are less than those requested")
                     exit()
 
+            elif curQuad[0] == 'MEDIAN':
+                maxVars = curQuad[1][0]
+                maxLines = curQuad[1][1]
+                baseDir = int(curQuad[3]) + 1
+                varNames = []
+                vars = []
+
+                i = 0
+                while i < maxVars:
+                    varNames.append(self.getValue(baseDir))
+                    vars.append([])
+                    baseDir += 1
+                    i += 1
+
+                maxDir = baseDir + maxVars*maxLines
+
+                while baseDir < maxDir:
+                    vars[(baseDir+maxVars-1) % maxVars].append(self.getValue(baseDir))
+                    baseDir += 1
+
+                i = 0
+                while i < maxVars:
+                    print("The median of " + varNames[i] + " is: " + self.median(vars[i]))
+                    i += 1
+
             if not self.isJumping:
                 self.pointer += 1
+
+    def median(self, lst):
+        quotient, remainder = divmod(len(lst), 2)
+        if remainder:
+            result = float(sorted(lst)[quotient])
+            return str(result)
+        else:
+            sum = float(sorted(lst)[quotient]) + float(sorted(lst)[quotient - 1])
+            return str(sum / 2)
 
     def getValue(self, adr):
         # If the address is global
@@ -361,7 +393,9 @@ class VirtualMachine(object):
 
         # If it is a dataframe
         elif 22500 <= adr < 25000:
-            print('dataframe')
+            adr -= 22500
+            adr += self.dataframeLpointer
+            return self.localMem[4][adr]
 
     def saveLocalValue(self, adr, value):
         # If it is int
@@ -390,7 +424,9 @@ class VirtualMachine(object):
 
         # If it is a dataframe
         elif 22500 <= adr < 25000:
-            print('dataframe')
+            adr -= 22500
+            adr += self.dataframeLpointer
+            self.localMem[4][adr] = value
 
     def calcFuncSize(self, scope):
         i = self.directory[scope][0][3][0]

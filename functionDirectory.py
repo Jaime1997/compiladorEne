@@ -170,6 +170,12 @@ class FunctionDirectory(object):
     def pushIndexStack(self, index):
         self.arrIndexes[len(self.auxArrId)-1].append(index)
 
+    def initDataframe(self, id, maxVars, maxLines):
+        self.directory[self.currentScope][1][id][3] = [maxVars, maxLines]
+
+    def getDataframeLimits(self, id):
+        return self.directory[self.currentScope][1][id][3]
+
     def initArray(self, id):
         numDimensions = len(self.arrDimensions)
         size = 1

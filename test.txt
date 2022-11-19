@@ -2,10 +2,11 @@ program test;
 
 main(){
     dataframe archive;
-    int i;
-    i = 5;
+    float i;
 
-    load(archive, "dataframe.txt", 2, 3);
+    load(archive, "dataframe.txt", 4, 3);
+
+    median(archive);
 
     print(archive);
 }
