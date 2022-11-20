@@ -13,6 +13,7 @@ Llamada a funciones, las cuales pueden ser usadas como una expresion cualquiera 
 Recursion
 Declaracion de variables dimensionadas
 Acceso a datos dentro de una variable dimensionada
+Carga de archivos y analisis estadistico basico
 
 Todas las funcinalidades declaradas en este documento producen cuadruplos los cuales son ejecutados
 en una maquina virtual.
@@ -20,5 +21,3 @@ en una maquina virtual.
 La maquina virtual hace un manejo correcto de memoria local, calcualando el tamaño requerido para las
 llamadas a funciones y liberando memoria una vez que se sale de una de estas.
 
-Falta:
-La funcionalidad particular del proyecto.
