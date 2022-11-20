@@ -71,4 +71,15 @@ main(){
 
     cube[0][1][2] = gInt-2;
     print(cube[1-1][0+1][add(1,1)], matrix[1][1]);
+
+    print("Finally, let's make some statistical analysis.");
+
+    dataframe accidents;
+    load(accidents, "carAccidentData.txt", 3, 5);
+
+    median(accidents);
+    correlate(accidents,1,2);
+    correlate(accidents);
+
+    print("And that's it! Thank you for running the ene programming language demo.");
 }

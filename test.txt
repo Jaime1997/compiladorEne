@@ -2,11 +2,12 @@ program test;
 
 main(){
     dataframe archive;
-    float i;
 
-    load(archive, "dataframe.txt", 4, 3);
+    load(archive, "dataframe.txt", 4, 4);
 
     median(archive);
+    correlate(archive,0,3);
+    correlate(archive);
 
     print(archive);
 }

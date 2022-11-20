@@ -1,3 +1,8 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+
 class VirtualMachine(object):
 
     def __init__(self, functionDirectoryTable, constantsTable,
@@ -229,6 +234,48 @@ class VirtualMachine(object):
                 while i < maxVars:
                     print("The median of " + varNames[i] + " is: " + self.median(vars[i]))
                     i += 1
+
+            elif curQuad[0] == 'CORRELATE':
+                maxVars = curQuad[1][0]
+                maxLines = curQuad[1][1]
+                toCorrelate = curQuad[2]
+                baseDir = int(curQuad[3]) + 1
+                varNames = []
+                vars = []
+
+                if toCorrelate:
+                    if maxVars < max(toCorrelate):
+                        print("Error: inputted variable doesn't exist")
+                        break
+
+                i = 0
+                while i < maxVars:
+                    varNames.append(self.getValue(baseDir))
+                    vars.append([])
+                    baseDir += 1
+                    i += 1
+
+                maxDir = baseDir + maxVars*maxLines
+
+                while baseDir < maxDir:
+                    vars[(baseDir+maxVars-1) % maxVars].append(float(self.getValue(baseDir)))
+                    baseDir += 1
+
+                if toCorrelate:
+                    varsToUse = []
+                    varNamesToUse = []
+                    for variable in toCorrelate:
+                        varNamesToUse.append(varNames[variable])
+                        varsToUse.append(vars[variable])
+                    my_rho = np.corrcoef(varsToUse)
+                    sns.heatmap(my_rho, xticklabels=varNamesToUse, yticklabels=varNamesToUse,
+                                annot=True, vmax=1, vmin=-1, center=0, cmap='vlag')
+                    plt.show()
+                else:
+                    my_rho = np.corrcoef(vars)
+                    sns.heatmap(my_rho, xticklabels=varNames, yticklabels=varNames,
+                                annot=True, vmax=1, vmin=-1, center=0, cmap='vlag')
+                    plt.show()
 
             if not self.isJumping:
                 self.pointer += 1

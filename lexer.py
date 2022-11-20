@@ -5,7 +5,7 @@ class EneLexer(Lexer):
     # Keywords
     tokens = {PROGRAM, MAIN, FUNC, ID, INT, FLOAT, CHAR, STRING, DATAFRAME,
               CTEINT, CTEFLOAT, CTECHAR, CTESTRING, IF, ELSE, AND, OR, PRINT,
-              WRITE, WHILE, DO, FOR, RETURN, LOAD, MEDIAN}
+              WRITE, WHILE, DO, FOR, RETURN, LOAD, MEDIAN, CORRELATE}
 
     # Ignore whitespace
     ignore = '\t'
@@ -34,6 +34,7 @@ class EneLexer(Lexer):
     RETURN = r'return'
     LOAD = r'load'
     MEDIAN = r'median'
+    CORRELATE = r'correlate'
 
     # Skip whitespace
     @_(r'\n')

@@ -319,6 +319,10 @@ class EneParser(Parser):
     def statement(self, p):
         return p
 
+    @_('correlationCalc')
+    def statement(self, p):
+        return p
+
     @_('returnStatement')
     def statement(self, p):
         return p
@@ -484,6 +488,41 @@ class EneParser(Parser):
         quadruples.pushQuadruple('MEDIAN',
                                  directory.getDataframeLimits(p[2]),
                                  "",
+                                 directory.getAddressVar(p[2]))
+        return p
+
+    @_('CORRELATE "(" ID "," listVariables ")" ";"')
+    def correlationCalc(self, p):
+        if directory.getVariableType(p[2]) != 'dataframe':
+            print("Error: statistical analysis can only be done on a dataframe variable")
+            exit()
+
+        quadruples.pushQuadruple('CORRELATE',
+                                 directory.getDataframeLimits(p[2]),
+                                 quadruples.operandStack,
+                                 directory.getAddressVar(p[2]))
+        quadruples.operandStack = []
+        return p
+
+    @_('CTEINT "," listVariables')
+    def listVariables(self, p):
+        quadruples.pushOperandStack(int(p[0]))
+        return p
+
+    @_('CTEINT')
+    def listVariables(self, p):
+        quadruples.pushOperandStack(int(p[0]))
+        return p
+
+    @_('CORRELATE "(" ID ")" ";"')
+    def correlationCalc(self, p):
+        if directory.getVariableType(p[2]) != 'dataframe':
+            print("Error: statistical analysis can only be done on a dataframe variable")
+            exit()
+
+        quadruples.pushQuadruple('CORRELATE',
+                                 directory.getDataframeLimits(p[2]),
+                                 [],
                                  directory.getAddressVar(p[2]))
         return p
 
