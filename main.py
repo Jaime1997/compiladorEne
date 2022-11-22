@@ -1,3 +1,5 @@
+# main creates a REPL in which we can input source code via .txt file. It calls the parser
+# which calls the lexer to tokenize the text. The parser then scans it.
 from parser import *
 import sys
 

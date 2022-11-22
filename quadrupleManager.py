@@ -1,3 +1,6 @@
+# Stores the information required to generate quadruples, and generates them.
+# Also stores the semantic cube.
+
 class QuadrupleManager(object):
 
     def __init__(self):

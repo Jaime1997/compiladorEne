@@ -1,3 +1,7 @@
+# Declares a range of addresses to which values will be assigned.
+# Keeps track of current address numbers.
+
+
 class VirtualMemory(object):
 
     def __init__(self):

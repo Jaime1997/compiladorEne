@@ -1,3 +1,4 @@
+# Gets source code, groups characters into tokens to be scanned by the parser.
 from sly import Lexer
 
 class EneLexer(Lexer):

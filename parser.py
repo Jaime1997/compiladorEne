@@ -1,3 +1,6 @@
+# Gets a stream of tokens from the parser and evaluates the grammar rules delcared below.
+# While checking the grammar we undertake actions to evaluate semantics.
+
 from sly import Parser
 from lexer import *
 
@@ -13,13 +16,6 @@ memory = VirtualMemory()
 class EneParser(Parser):
     # Import tokens from lexer
     tokens = EneLexer.tokens
-
-    # We operate from left to right,
-    # multiplication has higher precedence than addition.
-    precedence = (
-        ('left','+','-'),
-        ('left','*','/'),
-    )
 
     # Grammar rules
 
@@ -344,7 +340,7 @@ class EneParser(Parser):
                 '=',directory.getAddress(expOperand,expType),
                 "",directory.getAddressVar(p[0]))
         else:
-            print("Type mismatch.")
+            print("Error: type mismatch.")
         return p
 
     @_('arrayId arrayIndexes saveArrIdx "=" expression ";"')
@@ -1069,7 +1065,7 @@ class EneParser(Parser):
 
     @_('FOR "(" type declareIdx "=" exp assignIdx ";" expression forCondition ";" step ")" block loopFor')
     def forStatement(self, p):
-        directory.removeVariableToContext(p[3][1])
+        directory.removeVariableFromContext(p[3][1])
         return p
 
     @_('ID')
@@ -1153,5 +1149,5 @@ class EneParser(Parser):
     def eof(self, p):
         #print("Valid")
         #directory.printDirectory()
-        print(quadruples.printQuadrupleList())
+        #print(quadruples.printQuadrupleList())
         return p

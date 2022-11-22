@@ -1,3 +1,6 @@
+# Receives the list of quadruples to be evaluated and resolves the operations these request.
+# It also manages the retrieval and assignation of values in memory.
+
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -12,7 +15,6 @@ class VirtualMachine(object):
         self.currentScope = "main"
         self.nextScope = ""
         self.scopeStack = []
-        self.scopeReturnType = ""
         self.directory = functionDirectoryTable
         self.consts = constantsTable
         self.temps = temporalTable
@@ -20,7 +22,6 @@ class VirtualMachine(object):
         self.params = parametersTable
         self.returnValue = None
 
-        self.pointer = 0
         self.isJumping = False
 
         self.recursionCounter = 0
@@ -46,7 +47,7 @@ class VirtualMachine(object):
         while self.pointer < eof:
             self.isJumping = False
             curQuad = self.quads[self.pointer]
-            print(curQuad)
+            #print(curQuad)
 
             if curQuad[0] == 'GOTO':
                 self.pointer = curQuad[3]

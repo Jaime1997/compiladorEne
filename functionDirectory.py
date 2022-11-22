@@ -1,4 +1,5 @@
-
+# The function directory keeps track of the context of declared functions and variables.
+# It also helps checking parameter/argument concordance and calculating array sizes.
 class FunctionDirectory(object):
 
     def __init__(self):
@@ -10,7 +11,7 @@ class FunctionDirectory(object):
         # Int, float, bool
         self.tempTable = [dict(), dict(), dict()]
         # Parameter table
-        #self.parameterTable = dict()
+        self.parameterTable = dict()
         # Name of currently running program
         self.programName = ""
         # Global or local scope
@@ -58,15 +59,6 @@ class FunctionDirectory(object):
     def setReturn(self, returnValue):
         self.currentScopeReturn = returnValue
 
-    # Resets entire directory
-    def eraseContext(self):
-        self.directory = dict()
-
-    # Erases the context of a function
-    def eraseScope(self):
-        self.directory[self.currentScope][1] = dict()
-
-
     def addVariableToContext(self, id, adr):
         if id in self.directory[self.currentScope][1]:
             print("Error: variable already declared.")
@@ -75,7 +67,7 @@ class FunctionDirectory(object):
             self.directory[self.currentScope][1][id] = [self.currentType, "value", adr, []]
             # Type, value, address, dimensions
 
-    def removeVariableToContext(self, id):
+    def removeVariableFromContext(self, id):
         if id in self.directory[self.currentScope][1]:
             del self.directory[self.currentScope][1][id]
         else:
@@ -237,13 +229,6 @@ class FunctionDirectory(object):
         if self.argC[self.funcC] == len(self.parameterTable[self.newScope[self.funcC]]):
             return True
         else:
-            return False
-
-    def checkParamArgumentType(self,argumentType):
-        if argumentType == self.parameterTable[self.newScope[self.funcC]][self.paramC]:
-            return True
-        else:
-            print("Error: parameter/argument type mismatch")
             return False
 
     def addConst(self, id, type, adr):
