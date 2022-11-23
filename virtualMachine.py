@@ -48,6 +48,7 @@ class VirtualMachine(object):
             self.isJumping = False
             curQuad = self.quads[self.pointer]
             #print(curQuad)
+            #print(self.localMem[0][:20])
 
             if curQuad[0] == 'GOTO':
                 self.pointer = curQuad[3]
@@ -89,6 +90,9 @@ class VirtualMachine(object):
                 self.arguments.pop()
 
             elif curQuad[0] == 'RETURN':
+                if self.currentScope == "main":
+                    exit(0)
+
                 self.returnValue = self.getValue(curQuad[1])
                 self.pointer = self.pointerBreadcrumb.pop()
                 self.currentScope = self.scopeStack.pop()

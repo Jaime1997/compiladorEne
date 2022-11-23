@@ -1,0 +1,44 @@
+program sort;
+
+main(){
+    int array[10];
+
+    array[0] = 5;
+    array[1] = 8;
+    array[2] = 0;
+    array[3] = 5;
+    array[4] = 7;
+    array[5] = 2;
+    array[6] = 11;
+    array[7] = 3;
+    array[8] = 20;
+    array[9] = 1;
+
+    int aux1, aux2;
+    aux1 = 0;
+    aux2 = 0;
+
+    int flag, j, n;
+    flag = 1;
+    j = 0;
+    n = 10;
+
+    while(flag != 0){
+        flag = 0;
+        while(j < n-1){
+            if (array[j] > array[j + 1]){
+                aux1 = array[j];
+                aux2 = array[j+1];
+                array[j] = aux2;
+                array[j+1] = aux1;
+                flag = 1;
+            }
+           j = j+1;
+        }
+        j = 0;
+    }
+
+    for(int x = -1; x < 9; 1){
+        print(array[x]);
+    }
+}

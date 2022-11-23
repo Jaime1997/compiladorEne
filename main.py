@@ -14,7 +14,7 @@ if __name__ == '__main__':
         try:
             tree = parser.parse(lexer.tokenize(text))
         except:
-            print("fail")
+            print("Program terminated")
     else:
-        print('porfavor llamar el programa de esta manera:')
-        print('python3 main.py nombredearchivo.txt')
+        print('Please call the program following this format:')
+        print('python3 main.py <name>.txt')

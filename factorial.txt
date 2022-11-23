@@ -1,0 +1,16 @@
+program factorial;
+
+main(){
+    int i,j;
+
+    print("Input factorial 'N' number");
+    write(i);
+
+    j = 1;
+
+    for(int k = 1; k < i; 1){
+        j = j * k;
+    }
+
+    print(j);
+}

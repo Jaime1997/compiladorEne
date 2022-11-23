@@ -182,7 +182,7 @@ class FunctionDirectory(object):
             self.directory[self.currentScope][1][id][3][2].append([0, upperLimit - 1, size])
             size *= upperLimit
 
-        self.directory[self.currentScope][1][id][3][1] = size
+        self.directory[self.currentScope][1][id][3][1] = size + 1
 
     def getArrayBaseDir(self):
         return self.directory[self.currentScope][1][self.auxArrId[-1]][2]

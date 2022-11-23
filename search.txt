@@ -1,0 +1,29 @@
+program search;
+
+main(){
+    int array[10];
+
+    array[0] = 5;
+    array[1] = 8;
+    array[2] = 0;
+    array[3] = 5;
+    array[4] = 7;
+    array[5] = 2;
+    array[6] = 11;
+    array[7] = 3;
+    array[8] = 20;
+    array[9] = 1;
+
+    int search;
+    print("Ingresa el numero que desea buscar");
+    write(search);
+
+    for(int x = -1; x < 9; 1){
+        if(array[x] == search){
+            print("Se encontro el numero en la posicion", x);
+            return 0;
+        }
+    }
+
+    print("No se encontro el numero dentro del arreglo");
+}
